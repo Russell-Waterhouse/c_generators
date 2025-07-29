@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "types.h"
-
+#include "../types.h"
 
 typedef i32 T;
 
@@ -11,7 +10,7 @@ typedef struct Node {
 } Node;
 
 
-Node* insert(Node* head, T value) {
+Node* insert_front(Node* head, T value) {
   Node* node;
   node = malloc(sizeof(*node));
   if (NULL == node) {
