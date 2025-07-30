@@ -2,6 +2,9 @@
 
 #define TYPES
 
+#define SUCCESS 1
+#define FAIL 0
+
 #include <stdint.h>
 typedef uint8_t u8;
 typedef uint16_t u16;
