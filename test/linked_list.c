@@ -3,7 +3,7 @@
 #include "../templates/linked_list.c"
 #include "../types.h"
 
-i8 test_insert() {
+Result test_insert() {
   Node* head = insert_front(NULL, 0);
   for(i32 i = 0; i < 8; i++) {
     head = insert_front(head, i);
@@ -20,7 +20,7 @@ i8 test_insert() {
   return SUCCESS;
 }
 
-i8 test_delete() {
+Result test_delete() {
   return SUCCESS;
 }
 
