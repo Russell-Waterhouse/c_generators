@@ -13,7 +13,7 @@ typedef struct String {
 
 String* cstr_to_str(char* cstr, u32 size) {
     u32 i;
-    String* s = calloc(1, sizeof *String);
+    String* s = calloc(1, sizeof String);
     if (!s) {
         printf("failed to allocate memory for cstr");
         exit(-1);
@@ -68,7 +68,35 @@ char char_at(String* s, u32 idx) {
   return s->str[idx];
 }
 
-String* concat(String* s1, String* s2);
+String* concat(String* s1, String* s2) {
+    u32 i, j;
+    String* s = calloc(1, sizeof String);
+    if (!s1 || !s2 || !s1->str || !s2->str) {
+      printf("Called concat with null string(s)\n");
+      exit(-1);
+    }
+    
+    if (!s) {
+        printf("failed to allocate memory for cstr");
+        exit(-1);
+    }
+    
+    s->str = calloc(size, sizeof char);
+    if (!s->str) {
+        printf("failed to allocate memory for cstr arr\n");
+        exit(-1);
+    }
+    
+    for(i = 0; i < s1->size; i++) {
+        s->str[i] = s1->str[i];
+    }
+    for(j = 0; j < s2->size; j++, i++) {
+        s->str[i] = s2->str[j];
+    }
+    
+    return s;
+}
+
 bool ends_with(String* s1, String* search_str);
 bool starts_with(String* s1, String* search_str);
 bool includes(String* s1, String* search_str);
@@ -91,7 +119,7 @@ inline bool blank(String* s) {
   }
   for (i = 0; i < s->size; i++) {
     /* TODO OTHER WHITESPACE */
-    if (s->str[i] != ' ') {
+    if (s->str[i] != ' ' && s->str[i] != '\t') {
       return true;
     }
   }
