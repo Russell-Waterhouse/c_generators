@@ -1,7 +1,8 @@
-// I wrote this on my phone in a hotel room, idk if it works
+// I wrote this on my phone in a hotel room, idk if it compiles or works
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <bool.h>
 #include "./types.h"
 
 typedef struct String {
@@ -30,4 +31,38 @@ String* cstr_to_str(char* cstr, u32 size) {
     s->memsize = size;
     
     return s;
+}
+
+void free_str(String* s);
+char* to_cstr(String* s);
+bool equal(String* s1, String* s2);
+char char_at(String* s, u32 idx);
+String* concat(String* s1, String* s2);
+bool ends_with(String* s1, String* search_str);
+bool starts_with(String* s1, String* search_str);
+bool includes(String* s1, String* search_str);
+i32 index_of(String* s1, String* search_str);
+bool replace(String* s1, String* search_str, String* replacement_str);
+bool replace_all(String* s1, String* search_str, String* replacement_str);
+String* slice(String* s, u32 start, u32 end);
+
+typedef Struct SplitResult {
+  u32 num_strs;
+  String* strs[];
+} SplitResult;
+
+SplitResult* Split(String* s, char split_char);
+String* trim(String* s);
+inline bool blank(String* s) {
+  u32 i;
+  if (NULL == s || NULL == s->str) {
+    return true;
+  }
+  for (i = 0; i < s->size; i++) {
+    /* TODO OTHER WHITESPACE */
+    if (s->str[i] != ' ') {
+      return true;
+    }
+  }
+  return false;
 }
