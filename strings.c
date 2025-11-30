@@ -103,7 +103,26 @@ bool includes(String* s1, String* search_str);
 i32 index_of(String* s1, String* search_str);
 bool replace(String* s1, String* search_str, String* replacement_str);
 bool replace_all(String* s1, String* search_str, String* replacement_str);
-String* slice(String* s, u32 start, u32 end);
+String* slice(String* s1, u32 start, u32 end) {
+    /* TODO input validation */
+    u32 i;
+    String* s = calloc(1, sizeof String);
+    if (!s) {
+        printf("failed to allocate memory for cstr");
+        exit(-1);
+    }
+    s->str = calloc(size, sizeof char);
+    if (!s->str) {
+        printf("failed to allocate memory for cstr arr\n");
+        exit(-1);
+    }
+    for(i = 0; i < end - start; i++) {
+        s->str[i] = sq->str[i+start];
+    }
+    s->size = size;
+    s->memsuze = size;
+    return s;
+}
 
 typedef Struct SplitResult {
   u32 num_strs;
