@@ -1,5 +1,6 @@
 // TODO: I didn't do the memory correct here. The array needs to be dynamically sized,
 // not a dynamically sized array of DynArr structs.
+// TODO: tried fixing the above comment in a hotel room. test if it works. 
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -17,12 +18,18 @@ typedef struct DynArr {
 
 DynArr* insert_back(DynArr* a, T value) {
   if (a == NULL) {
-    a = calloc(sizeof(*a), START_SIZE);
+    a = calloc(1, sizeof *DynArr);
     if (a == NULL) {
-      printf("Failed to allocate memory for array");
+      printf("Failed to allocate memory for array holder\n");
       exit(-1);
     }
-
+    
+    a->arr = calloc(START_SIZE, sizeof *T);
+    if (a->arr == NULL) {
+      printf("Failed to allocate memory for array\n");
+      exit(-1);
+    }
+    
     a->memsize = START_SIZE;
     a->arr[a->size] = value;
     a->size++;
