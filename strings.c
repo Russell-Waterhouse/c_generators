@@ -35,8 +35,31 @@ String* cstr_to_str(char* cstr, u32 size) {
 
 void free_str(String* s);
 char* to_cstr(String* s);
-bool equal(String* s1, String* s2);
-char char_at(String* s, u32 idx);
+bool equal(String* s1, String* s2) {
+  u32 i;
+  if (NULL == s1 || NULL == s2) {
+    return false;
+  }
+  if (s1->size != s2->size) {
+    return false;
+  }
+  for(i = 0; i < s1->size; i++) {
+    if (s1->str[i] != s2->str[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+char char_at(String* s, u32 idx) {
+  if (s->size < idx) {
+    printf("accessing char_at with invalid index %d", idx) {
+    exit(-1);
+  }
+  
+  return s->str[idx];
+}
+
 String* concat(String* s1, String* s2);
 bool ends_with(String* s1, String* search_str);
 bool starts_with(String* s1, String* search_str);
