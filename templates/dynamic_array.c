@@ -29,9 +29,9 @@ DynArr* insert_back(DynArr* a, T value) {
     return a;
   }
 
-  if (a-> size >= a-> memsize) {
+  if (a->size >= a->memsize) {
     size_t new_memsize = a->memsize * 2;
-    a = realloc(a, a->memsize * 2);
+    a = realloc(a, new_memsize);
     if (a == NULL) {
       printf("Failed to allocate memory for array");
       exit(-1);
@@ -43,16 +43,18 @@ DynArr* insert_back(DynArr* a, T value) {
   return a;
 }
 
-T at(DynArr* a, size_t index) {
+inline T at(DynArr* a, size_t index) {
   if (a == NULL) {
-    printf("Passed a null dynamic array to the at function. Exiting the program.");
+    printf("Passed a null dynamic array to the 'at' function. Exiting the program.");
     exit(-1);
   }
   if (index >= a->size) {
     printf("Attempted to index an array outsize of its size. Exiting the program.");
+    // TODO: print size, line number, index, callstack here. 
     exit(-1);
   }
 
   return a->arr[index];
 }
+
 
