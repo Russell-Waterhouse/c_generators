@@ -33,7 +33,15 @@ String* cstr_to_str(char* cstr, u32 size) {
     return s;
 }
 
-void free_str(String* s);
+void free_str(String* s) {
+  if (NULL == s || NULL == s->str) {
+    printf("Double free attempt\n");
+    exit(-1);
+  }
+  free(s->str);
+  free(s);
+}
+
 char* to_cstr(String* s);
 bool equal(String* s1, String* s2) {
   u32 i;
