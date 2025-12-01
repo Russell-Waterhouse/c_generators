@@ -12,7 +12,7 @@ typedef struct String {
 String* cstr_to_str(char* cstr, u32 size) {
   u32 i;
   String* s;
-  s = calloc(1, sizeof(s));
+  s = calloc(1, sizeof(*s));
   if (!s) {
     printf("failed to allocate memory for cstr");
     exit(-1);
@@ -114,7 +114,7 @@ String* slice(String* s1, u32 start, u32 end) {
   u32 size;
 
   if (NULL == s1 || start > end) {
-    printf("Invalid params passed to string slice");
+    printf("Invalid params passed to string slice: %d > %d or s is null\n", start, end);
     exit(-1);
   }
   size = end - start;
@@ -152,9 +152,41 @@ u32 blank(String* s) {
   }
   for (i = 0; i < s->size; i++) {
     if (s->str[i] != ' ' && s->str[i] != '\t' && s->str[i] != '\0' && s->str[i] != '\n') {
-      return 1;
+      return 0;
     }
   }
-  return 0;
+  return 1;
+}
+
+typedef struct ToIntResult {
+  Result status;
+  i64 result;
+} ToIntResult;
+
+ToIntResult str_to_int(String* s) {
+  ToIntResult res;
+  i64 result = 0;
+  if (NULL == s || NULL == s->str) {
+    res.status = FAIL;
+    return res;
+  }
+
+  u32 i;
+  for (i = 0; i < s->size; i++) {
+    char c = s->str[i];
+    if (c < '0' || c > '9') {
+      printf("Failed to parse ascii code %d\n", c);
+      res.status = FAIL;
+      return res;
+    }
+    result *= 10;
+    result += (c - '0');
+  }
+
+
+  res.status = SUCCESS;
+  res.result = result;
+
+  return res;
 }
 
