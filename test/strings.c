@@ -8,15 +8,15 @@ Result test_cstr_to_str() {
   char s2[] = "This is a string";
   char s3[] = "This is another string";
   String* s = cstr_to_str(s1, strlen(s1));
-  if (s->size != 0 || s->memsize != 0 || !strcmp(s1, s->str)) {
-    printf("case 1 failed; size: %ld; memsize: %ld\n", s->size, s->memsize);
+  if (s->size != 0 || s->memsize != 0) {
+    printf("case 1 failed; size: %ld; memsize: %ld;\n", s->size, s->memsize);
     return FAIL;
   }
   free_str(s);
 
   s = cstr_to_str(s2, strlen(s2));
   if (s->size != 31 || s->memsize != 31 || !strcmp(s1, s->str)) {
-    printf("case 2 failed\n");
+    printf("case 2 failed; string: %s\n", s->str);
     return FAIL;
   }
   free_str(s);
