@@ -11,17 +11,29 @@ typedef struct String {
   char* str;
 } String;
 
-
 typedef struct DynStringArr {
   size_t memsize;
   size_t size;
   String* arr;
 } DynStringArr;
 
-String* cstr_to_str(char* cstr, u32 size);
-void free_str(String* s);
+typedef struct SplitResultOption {
+  Result status;
+  u32 num_strs;
+  DynStringArr* strs;
+} SplitResultOption;
 
-String* cstr_to_str(char* cstr, u32 size) {
+typedef struct SplitResult {
+  u32 num_strs;
+  DynStringArr* strs;
+} SplitResult;
+
+String* cstr_to_str_or_die(char* cstr, u32 size);
+void free_str_or_die(String* s);
+SplitResult split_str_or_die(String* s, char split_char);
+SplitResultOption split_str(String* s, char split_char);
+
+String* cstr_to_str_or_die(char* cstr, u32 size) {
   u32 i;
   String* s;
   s = calloc(1, sizeof(*s));
@@ -46,7 +58,7 @@ String* cstr_to_str(char* cstr, u32 size) {
   return s;
 }
 
-void free_str(String* s) {
+void free_str_or_die(String* s) {
   if (NULL == s || NULL == s->str) {
     printf("Double free attempt\n");
     exit(-1);
@@ -56,7 +68,7 @@ void free_str(String* s) {
 }
 
 char* to_cstr(String* s);
-u32 equal(String* s1, String* s2) {
+u32 str_equal(String* s1, String* s2) {
   u32 i;
   if (NULL == s1 || NULL == s2) {
     return 0;
@@ -72,7 +84,7 @@ u32 equal(String* s1, String* s2) {
   return 1;
 }
 
-char char_at(String* s, u32 idx) {
+char char_at_or_die(String* s, u32 idx) {
   if (s->size < idx) {
     printf("accessing char_at with invalid index %d", idx);
     exit(-1);
@@ -81,7 +93,7 @@ char char_at(String* s, u32 idx) {
   return s->str[idx];
 }
 
-String* concat(String* s1, String* s2) {
+String* concat_or_die(String* s1, String* s2) {
   u32 i, j;
   String* s;
   u32 size;
@@ -119,7 +131,7 @@ u32 includes(String* s1, String* search_str);
 i32 index_of(String* s1, String* search_str);
 u32 replace(String* s1, String* search_str, String* replacement_str);
 u32 replace_all(String* s1, String* search_str, String* replacement_str);
-DynStringArr* insert_back(DynStringArr* a, String value) {
+DynStringArr* insert_back_or_die(DynStringArr* a, String value) {
   if (a == NULL) {
     a = calloc(1, sizeof *a);
     if (a == NULL) {
@@ -153,7 +165,7 @@ DynStringArr* insert_back(DynStringArr* a, String value) {
   return a;
 }
 
-String at(DynStringArr* a, size_t index) {
+String at_or_die(DynStringArr* a, size_t index) {
   if (a == NULL) {
     printf("Passed a null dynamic array to the 'at' function. Exiting the program.");
     exit(-1);
@@ -205,14 +217,8 @@ SliceResult slice(String* s1, u32 start, u32 end) {
   return res;
 }
 
-typedef struct SplitResult {
-  Result status;
-  u32 num_strs;
-  DynStringArr* strs;
-} SplitResult;
-
-SplitResult split_str(String* s, char split_char){
-  SplitResult res;
+SplitResultOption split_str(String* s, char split_char){
+  SplitResultOption res;
   DynStringArr* strs = NULL;
   u32 i;
   u32 start;
