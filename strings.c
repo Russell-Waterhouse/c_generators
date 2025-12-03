@@ -119,9 +119,6 @@ u32 includes(String* s1, String* search_str);
 i32 index_of(String* s1, String* search_str);
 u32 replace(String* s1, String* search_str, String* replacement_str);
 u32 replace_all(String* s1, String* search_str, String* replacement_str);
-
-
-
 DynStringArr* insert_back(DynStringArr* a, String value) {
   if (a == NULL) {
     a = calloc(1, sizeof *a);
@@ -170,26 +167,32 @@ String at(DynStringArr* a, size_t index) {
 }
 
 
-String* slice(String* s1, u32 start, u32 end) {
+typedef struct SliceResult {
+  Result status;
+  String* slice;
+} SliceResult;
+
+SliceResult slice(String* s1, u32 start, u32 end) {
+  SliceResult res;
   u32 i;
   String* s;
   u32 size;
 
   if (NULL == s1 || start > end) {
-    printf("Invalid params passed to string slice: %d > %d or s is null\n", start, end);
-    exit(-1);
+    res.status = FAIL;
+    return res;
   }
   size = end - start;
 
   s = calloc(1, sizeof *s);
   if (!s) {
-    printf("failed to allocate memory for cstr");
-    exit(-1);
+    res.status = FAIL;
+    return res;
   }
   s->str = (char*)calloc(size, sizeof(char));
   if (!s->str) {
-    printf("failed to allocate memory for cstr arr\n");
-    exit(-1);
+    res.status = FAIL;
+    return res;
   }
 
   for(i = 0; i < end - start; i++) {
@@ -197,7 +200,9 @@ String* slice(String* s1, u32 start, u32 end) {
   }
   s->size = size;
   s->memsize = size;
-  return s;
+  res.status = SUCCESS;
+  res.slice = s;
+  return res;
 }
 
 typedef struct SplitResult {
@@ -221,13 +226,17 @@ SplitResult split_str(String* s, char split_char){
   start = 0;
   for (i = 0; i < s->size; i++) {
     if (s->str[i] == split_char) {
-      strs = insert_back(strs, *slice(s, start, i));
+      SliceResult slice_result = slice(s, start, i);
+      /* TODO: if sliceresult.status == success, do the rest*/
+      strs = insert_back(strs, *slice_result.slice);
       start = i + 1;
       res.num_strs++;
     }
   }
   if (start != i) {
-      strs = insert_back(strs, *slice(s, start, i));
+      SliceResult slice_result = slice(s, start, i);
+      /* TODO: if sliceresult.status == success, do the rest*/
+      strs = insert_back(strs, *slice_result.slice);
       start = i + 1;
       res.num_strs++;
   }

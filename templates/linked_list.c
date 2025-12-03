@@ -2,15 +2,15 @@
 #include <stdio.h>
 #include "../types.h"
 
-typedef i32 T;
+typedef i32 GENERIC_TYPE;
 
 typedef struct Node {
   struct Node* next;
-  T value;
+  GENERIC_TYPE value;
 } Node;
 
 
-Node* insert_front(Node* head, T value) {
+Node* insert_front(Node* head, GENERIC_TYPE value) {
   Node* node;
   node = malloc(sizeof(*node));
   if (NULL == node) {
@@ -22,7 +22,7 @@ Node* insert_front(Node* head, T value) {
   return node;
 }
 
-// Returns the head node of a new list with the deleted item deleted.
+/* Returns the head node of a new list with the deleted item deleted. */
 Node* delete(Node* head, Node* delete_node) {
   if (head == NULL || delete_node == NULL) {
     return NULL;

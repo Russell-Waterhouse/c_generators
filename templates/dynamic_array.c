@@ -5,15 +5,15 @@
 
 #define START_SIZE 255
 
-typedef i32 GENERIC_VALUE;
+typedef i32 GENERIC_TYPE;
 
 typedef struct DynStringArr {
   size_t memsize;
   size_t size;
-  GENERIC_VALUE* arr;
+  GENERIC_TYPE* arr;
 } DynArr;
 
-DynArr* insert_back(DynArr* a, GENERIC_VALUE value) {
+DynArr* insert_back(DynArr* a, GENERIC_TYPE value) {
   if (a == NULL) {
     a = calloc(1, sizeof *a);
     if (a == NULL) {
@@ -21,7 +21,7 @@ DynArr* insert_back(DynArr* a, GENERIC_VALUE value) {
       exit(-1);
     }
 
-    a->arr = calloc(START_SIZE, sizeof(GENERIC_VALUE));
+    a->arr = calloc(START_SIZE, sizeof(GENERIC_TYPE));
     if (!a->arr) {
       printf("Failed to allocate memory for array\n");
       exit(-1);
@@ -47,13 +47,14 @@ DynArr* insert_back(DynArr* a, GENERIC_VALUE value) {
   return a;
 }
 
-inline GENERIC_VALUE at(DynArr* a, size_t index) {
+GENERIC_TYPE at(DynArr* a, size_t index) {
   if (a == NULL) {
     printf("Passed a null dynamic array to the 'at' function. Exiting the program.");
     exit(-1);
   }
   if (index >= a->size) {
     printf("Attempted to index an array outsize of its size. Exiting the program.");
+    /* TODO: print size, line number, index, callstack here. */
     exit(-1);
   }
 

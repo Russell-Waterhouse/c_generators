@@ -16,7 +16,7 @@ Result test_cstr_to_str() {
 
   s = cstr_to_str(s2, strlen(s2));
   if (s->size != 16 || s->memsize != 16 || !strcmp(s1, s->str)) {
-    printf("case 2 failed; string: %s\n", s->str);
+    printf("case 2 failed; size: %ld, memsize: %ld, string: %s\n",s->size, s->memsize, s->str);
     return FAIL;
   }
   free_str(s);

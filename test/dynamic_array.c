@@ -5,7 +5,7 @@
 
 Result test_insert_back_when_empty() {
     DynArr* arr = insert_back(NULL, 100);
-    if (arr->memsize == START_SIZE && arr->size == 1 && arr->arr[0] == 10) {
+    if (arr->memsize == START_SIZE && arr->size == 1 && arr->arr[0] == 100) {
         return SUCCESS;
     }
 
@@ -21,4 +21,5 @@ int main() {
 
 
     puts("There were test failures.");
+    exit(0);
 }

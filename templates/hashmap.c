@@ -1,9 +1,9 @@
 #include <stdio.h>
-#include "types.h"
+#include "../types.h"
 
-typedef i32 T;
+typedef i32 GENERIC_TYPE;
 
 
-T insert(T val) {
+GENERIC_TYPE insert(GENERIC_TYPE val) {
   return val;
 }
