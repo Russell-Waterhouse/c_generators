@@ -2,12 +2,24 @@
 #include <stdio.h>
 #include <string.h>
 #include "./types.h"
+#include <stddef.h>
+#define START_SIZE 255
 
 typedef struct String {
   size_t size;
   size_t memsize;
   char* str;
 } String;
+
+
+typedef struct DynStringArr {
+  size_t memsize;
+  size_t size;
+  String* arr;
+} DynStringArr;
+
+String* cstr_to_str(char* cstr, u32 size);
+void free_str(String* s);
 
 String* cstr_to_str(char* cstr, u32 size) {
   u32 i;
@@ -107,8 +119,58 @@ u32 includes(String* s1, String* search_str);
 i32 index_of(String* s1, String* search_str);
 u32 replace(String* s1, String* search_str, String* replacement_str);
 u32 replace_all(String* s1, String* search_str, String* replacement_str);
+
+
+
+DynStringArr* insert_back(DynStringArr* a, String value) {
+  if (a == NULL) {
+    a = calloc(1, sizeof *a);
+    if (a == NULL) {
+      printf("Failed to allocate memory for array holder\n");
+      exit(-1);
+    }
+
+    a->arr = calloc(START_SIZE, sizeof(String));
+    if (!a->arr) {
+      printf("Failed to allocate memory for array\n");
+      exit(-1);
+    }
+
+    a->memsize = START_SIZE;
+    a->arr[a->size] = value;
+    a->size++;
+    return a;
+  }
+
+  if (a->size >= a->memsize) {
+    size_t new_memsize = a->memsize * 2;
+    a = realloc(a, new_memsize);
+    if (a == NULL) {
+      printf("Failed to allocate memory for array");
+      exit(-1);
+    }
+    a->memsize = new_memsize;
+  }
+  a->arr[a->size] = value;
+  a->size++;
+  return a;
+}
+
+String at(DynStringArr* a, size_t index) {
+  if (a == NULL) {
+    printf("Passed a null dynamic array to the 'at' function. Exiting the program.");
+    exit(-1);
+  }
+  if (index >= a->size) {
+    printf("Attempted to index an array outsize of its size. Exiting the program.");
+    exit(-1);
+  }
+
+  return a->arr[index];
+}
+
+
 String* slice(String* s1, u32 start, u32 end) {
-  /* TODO input validation */
   u32 i;
   String* s;
   u32 size;
@@ -139,12 +201,43 @@ String* slice(String* s1, u32 start, u32 end) {
 }
 
 typedef struct SplitResult {
+  Result status;
   u32 num_strs;
-  String* strs[];
+  DynStringArr* strs;
 } SplitResult;
 
-SplitResult* Split(String* s, char split_char);
+SplitResult split_str(String* s, char split_char){
+  SplitResult res;
+  DynStringArr* strs = NULL;
+  u32 i;
+  u32 start;
+  res.num_strs = 0;
+
+  if (NULL == s) {
+    res.status = FAIL;
+    return res;
+  }
+
+  start = 0;
+  for (i = 0; i < s->size; i++) {
+    if (s->str[i] == split_char) {
+      strs = insert_back(strs, *slice(s, start, i));
+      start = i + 1;
+      res.num_strs++;
+    }
+  }
+  if (start != i) {
+      strs = insert_back(strs, *slice(s, start, i));
+      start = i + 1;
+      res.num_strs++;
+  }
+  res.status = SUCCESS;
+  res.strs = strs;
+  return res;
+}
+
 String* trim(String* s);
+
 u32 blank(String* s) {
   u32 i;
   if (NULL == s || NULL == s->str) {
