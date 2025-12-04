@@ -29,6 +29,8 @@ typedef struct SplitResult {
 } SplitResult;
 
 String* cstr_to_str_or_die(char* cstr, u32 size);
+String* u64_to_str_or_die(u64 v);
+Result strip_in_place(String* s);
 void free_str_or_die(String* s);
 SplitResult split_str_or_die(String* s, char split_char);
 SplitResultOption split_str(String* s, char split_char);
@@ -298,20 +300,20 @@ u32 blank(String* s) {
   return 1;
 }
 
-typedef struct ToIntResult {
+typedef struct ToU64Result {
   Result status;
-  i64 result;
-} ToIntResult;
+  u64 result;
+} ToU64Result;
 
-ToIntResult str_to_int(String* s) {
-  ToIntResult res;
-  i64 result = 0;
+ToU64Result str_to_u64(String* s) {
+  ToU64Result res;
+  u64 result = 0;
   if (NULL == s || NULL == s->str) {
     res.status = FAIL;
     return res;
   }
 
-  u32 i;
+  u64 i;
   for (i = 0; i < s->size; i++) {
     char c = s->str[i];
     if (c < '0' || c > '9') {
@@ -331,4 +333,22 @@ ToIntResult str_to_int(String* s) {
 }
 
 
+String* u64_to_str_or_die(u64 v) {
+  /* u32 has a max of 20 digits */
+  char str[32];
+  sprintf(str, "%lu", v);
+  String* s = cstr_to_str_or_die(str, strlen(str));
+
+  return s;
+}
+
+
+Result strip_in_place(String* s) {
+  /* TODO: Finish the rest of this */
+  if (s->str[s->size - 1] == '\n') {
+    s->size--;
+  }
+
+  return SUCCESS;
+}
 
