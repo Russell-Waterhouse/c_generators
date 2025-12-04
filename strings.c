@@ -251,6 +251,38 @@ SplitResultOption split_str(String* s, char split_char){
   return res;
 }
 
+SplitResult split_str_or_die(String* s, char split_char){
+  SplitResult res;
+  DynStringArr* strs = NULL;
+  u32 i;
+  u32 start;
+  res.num_strs = 0;
+
+  if (NULL == s) {
+    printf("Null string in split_str_or_die");
+    exit(-1);
+  }
+
+  start = 0;
+  for (i = 0; i < s->size; i++) {
+    if (s->str[i] == split_char) {
+      SliceResult slice_result = slice(s, start, i);
+      /* TODO: if sliceresult.status == success, do the rest*/
+      strs = insert_back_or_die(strs, *slice_result.slice);
+      start = i + 1;
+      res.num_strs++;
+    }
+  }
+  if (start != i) {
+      SliceResult slice_result = slice(s, start, i);
+      /* TODO: if sliceresult.status == success, do the rest*/
+      strs = insert_back_or_die(strs, *slice_result.slice);
+      start = i + 1;
+      res.num_strs++;
+  }
+  res.strs = strs;
+  return res;
+}
 String* trim(String* s);
 
 u32 blank(String* s) {
@@ -297,4 +329,6 @@ ToIntResult str_to_int(String* s) {
 
   return res;
 }
+
+
 
