@@ -234,7 +234,7 @@ SplitResultOption split_str(String* s, char split_char){
     if (s->str[i] == split_char) {
       SliceResult slice_result = slice(s, start, i);
       /* TODO: if sliceresult.status == success, do the rest*/
-      strs = insert_back(strs, *slice_result.slice);
+      strs = insert_back_or_die(strs, *slice_result.slice);
       start = i + 1;
       res.num_strs++;
     }
@@ -242,7 +242,7 @@ SplitResultOption split_str(String* s, char split_char){
   if (start != i) {
       SliceResult slice_result = slice(s, start, i);
       /* TODO: if sliceresult.status == success, do the rest*/
-      strs = insert_back(strs, *slice_result.slice);
+      strs = insert_back_or_die(strs, *slice_result.slice);
       start = i + 1;
       res.num_strs++;
   }
