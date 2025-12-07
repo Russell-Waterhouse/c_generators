@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "../strings.c"
+#include <string.h>
+#include "../strings.h"
 #include "../types.h"
 
 Result test_cstr_to_str_or_die() {
