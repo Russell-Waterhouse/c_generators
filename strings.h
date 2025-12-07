@@ -1,7 +1,7 @@
 #ifndef MY_STRINGS_H
 #define MY_STRINGS_H
 
-#include "./types.c"
+#include "./types.h"
 #include "./dynamic_string_array.h"
 
 typedef struct String {
