@@ -107,11 +107,6 @@ u32 replace(String* s1, String* search_str, String* replacement_str);
 u32 replace_all(String* s1, String* search_str, String* replacement_str);
 
 
-typedef struct SliceResult {
-  Result status;
-  String* slice;
-} SliceResult;
-
 SliceResult slice(String* s1, u32 start, u32 end) {
   SliceResult res;
   u32 i;
@@ -145,7 +140,7 @@ SliceResult slice(String* s1, u32 start, u32 end) {
   return res;
 }
 
-SplitResultOption split_str(String* s, char split_char){
+SplitResultOption split_str(String* s, char split_char) {
   SplitResultOption res;
   DynStringArr* strs = NULL;
   u32 i;
@@ -179,7 +174,7 @@ SplitResultOption split_str(String* s, char split_char){
   return res;
 }
 
-SplitResult split_str_or_die(String* s, char split_char){
+SplitResult split_str_or_die(String* s, char split_char) {
   SplitResult res;
   DynStringArr* strs = NULL;
   u32 i;
@@ -211,6 +206,7 @@ SplitResult split_str_or_die(String* s, char split_char){
   res.strs = strs;
   return res;
 }
+
 String* trim(String* s);
 
 u32 blank(String* s) {
