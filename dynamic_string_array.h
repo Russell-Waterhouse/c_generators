@@ -1,0 +1,4 @@
+#ifndef DYNAMIC_STRING_AREAY_H
+#define DYNAMIC_STRING_AREAY_H
+
+#endif
