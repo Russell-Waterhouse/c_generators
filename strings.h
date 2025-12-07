@@ -1,17 +1,14 @@
-#ifndef MY_STIRINGS_H
-#define MY_STIRINGS_H
+#ifndef MY_STRINGS_H
+#define MY_STRINGS_H
+
+#include "./types.c"
+#include "./dynamic_string_array.h"
 
 typedef struct String {
   size_t size;
   size_t memsize;
   char* str;
 } String;
-
-typedef struct DynStringArr {
-  size_t memsize;
-  size_t size;
-  String* arr;
-} DynStringArr;
 
 typedef struct SplitResultOption {
   Result status;
