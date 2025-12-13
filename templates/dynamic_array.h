@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include "../types.h"
 
-#define START_SIZE 256
+
 
 typedef i32 GENERIC_TYPE;
 
@@ -18,6 +18,8 @@ typedef struct {
 
 GENERIC_TYPEDynArr GENERIC_TYPE_insert_back_or_die(GENERIC_TYPEDynArr a, GENERIC_TYPE value);
 GENERIC_TYPE GENERIC_TYPE_at_or_die(GENERIC_TYPEDynArr a, size_t index);
-void GENERIC_TYPE_free_or_die(GENERIC_TYPEDynArr a);
+void GENERIC_TYPE_free(GENERIC_TYPEDynArr a);
+GENERIC_TYPEDynArr GENERIC_TYPE_dyn_arr_initialize(size_t size);
+u8 GENERIC_TYPE_equal(GENERIC_TYPEDynArr a1, GENERIC_TYPEDynArr a2);
 
 #endif

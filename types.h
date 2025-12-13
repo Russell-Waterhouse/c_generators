@@ -17,5 +17,6 @@
       FAIL = 0,
       SUCCESS = 1
   } Result;
-
+  
+  #define DYNAMIC_ARRAY_START_SIZE 256
 #endif

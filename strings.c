@@ -5,8 +5,7 @@
 #include "./types.h"
 #include "./strings.h"
 #include "./implementations/size_t_dynamic_array.h"
-
-#define START_SIZE 255
+#include "implementations/i64_dynamic_array.h"
 
 String cstr_to_str_or_die(char* cstr, u32 size) {
   String s = {0};
@@ -67,7 +66,7 @@ u32 str_equal(String s, String s2) {
 
 char char_at_or_die(String s, u32 idx) {
   if (s.size < idx) {
-    printf("accessing char_at with invalid index %d", idx);
+    printf("accessing char_at with invalid index %d\n", idx);
     exit(-1);
   }
 
@@ -139,16 +138,61 @@ u8 starts_with(String s, String search_str) {
   return 1;
 }
 
+i64DynArr make_kmp_fail_table(String w) {
+  i64 pos, cnd;
+  i64DynArr t = i64_dyn_arr_initialize(w.size + 1);
+  pos = 1;
+  cnd = 0;
+
+  t.arr[0] = -1;
+  while (pos < w.size) {
+    if (char_at_or_die(w, pos) == char_at_or_die(w, cnd)) {
+      t.arr[pos] = t.arr[cnd];
+    } else {
+      t.arr[pos] = cnd;
+      while (cnd >= 0 && char_at_or_die(w, pos) != char_at_or_die(w, cnd)) {
+        cnd = t.arr[cnd];
+      }
+    }
+    ++pos;
+    ++cnd;
+  }
+  t.arr[pos] = cnd;
+
+  return t;
+}
+
 /* substring search returning the index of the first result
  * in a string, or -1 if the search_str was not found in s.
  * Uses the Knuth–Morris–Pratt (KMP) algorithm.
  */
-i64 first_index_of(String s, String search_str) {
-  /*size_t m, i; */
-  SizeTDynArr t = {0};
-  t = size_t_insert_back_or_die(t, -1);
+i64 find_first(String s, String search_str) {
+  i64 j, k;
+  i64DynArr t = {0};
+  /*initializing t */
+  t = make_kmp_fail_table(search_str);
+  if (s.size < search_str.size || NULL == s.str || NULL == search_str.str) {
+    return -1;
+  }
 
-  printf("size of t is now %zu", t.size);
+  j = 0;
+  k = 0;
+  while (j < s.size) {
+    if (char_at_or_die(search_str, k) == char_at_or_die(s, j)) {
+      j++;
+      k++;
+      if (k == search_str.size) {
+        return j - k;
+      }
+    } else {
+      k = i64_at_or_die(t, k);
+      if (k < 0) {
+        j++;
+        k++;
+      }
+    }
+  }
+
   return -1;
 }
 
@@ -156,9 +200,37 @@ i64 first_index_of(String s, String search_str) {
  * in a string, or -1 if the search_str was not found in s.
  * Uses the Knuth–Morris–Pratt (KMP) algorithm.
  */
-SizeTDynArr indexes_of(String s, String search_str) {
-  size_t m, i;
-  SizeTDynArr t = {0};
+SizeTDynArr find_all(String s, String search_str) {
+  i64 j, k;
+  i64DynArr t = {0};
+  /*initializing t */
+  t = make_kmp_fail_table(search_str);
+  SizeTDynArr found_positions = {0};
+  if (s.size < search_str.size || NULL == s.str || NULL == search_str.str) {
+    return found_positions;
+  }
+
+  j = 0;
+  k = 0;
+  while (j < s.size) {
+    if (char_at_or_die(search_str, k) == char_at_or_die(s, j)) {
+      j++;
+      k++;
+      if (k == search_str.size) {
+        found_positions = size_t_insert_back_or_die(found_positions, j - k);
+        k = i64_at_or_die(t, k);
+      }
+    } else {
+      k = i64_at_or_die(t, k);
+      if (k < 0) {
+        j++;
+        k++;
+      }
+    }
+  }
+
+
+  return found_positions;
 }
 
 u32 replace_first(String s, String search_str, String replacement_str);
@@ -308,7 +380,7 @@ Result strip_in_place(String s) {
 DynStringArr insert_back_or_die(DynStringArr a, String value) {
   if (a.size >= a.memsize) {
     if (a.memsize <= a.size) {
-      a.memsize = START_SIZE;
+      a.memsize = DYNAMIC_ARRAY_START_SIZE;
     } else {
       a.memsize *= 2;
     }
@@ -325,7 +397,7 @@ DynStringArr insert_back_or_die(DynStringArr a, String value) {
 
 String at_or_die(DynStringArr a, size_t index) {
   if (index >= a.size) {
-    printf("Attempted to index an array outsize of its size. Exiting the program.");
+    printf("Attempted to index an array outside of its size. Exiting the program.");
     exit(-1);
   }
 

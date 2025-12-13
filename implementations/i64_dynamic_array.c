@@ -5,16 +5,14 @@
 
 
 
-typedef i32 GENERIC_TYPE;
-
 typedef struct {
   size_t size;
   size_t memsize;
-  GENERIC_TYPE* arr;
-} GENERIC_TYPEDynArr;
+  i64* arr;
+} i64DynArr;
 
-GENERIC_TYPEDynArr GENERIC_TYPE_dyn_arr_initialize(size_t size) {
-  GENERIC_TYPEDynArr a;
+i64DynArr i64_dyn_arr_initialize(size_t size) {
+  i64DynArr a;
   a.size = size;
   a.memsize = size;
   a.arr = calloc(size, sizeof(size_t));
@@ -26,14 +24,14 @@ GENERIC_TYPEDynArr GENERIC_TYPE_dyn_arr_initialize(size_t size) {
   return a;
 }
 
-GENERIC_TYPEDynArr GENERIC_TYPE_insert_back_or_die(GENERIC_TYPEDynArr a, GENERIC_TYPE value) {
+i64DynArr i64_insert_back_or_die(i64DynArr a, i64 value) {
   if (a.size >= a.memsize) {
     if (a.memsize == 0) {
       a.memsize = DYNAMIC_ARRAY_START_SIZE;
     } else {
       a.memsize *= 2;
     }
-    a.arr = realloc(a.arr, a.memsize * sizeof(GENERIC_TYPE));
+    a.arr = realloc(a.arr, a.memsize * sizeof(i64));
     if (a.arr == NULL) {
       printf("Failed to allocate memory for array holder\n");
       exit(-1);
@@ -45,7 +43,7 @@ GENERIC_TYPEDynArr GENERIC_TYPE_insert_back_or_die(GENERIC_TYPEDynArr a, GENERIC
   return a;
 }
 
-GENERIC_TYPE GENERIC_TYPE_at_or_die(GENERIC_TYPEDynArr a, size_t index) {
+i64 i64_at_or_die(i64DynArr a, size_t index) {
   if (a.arr == NULL) {
     printf("Passed a null dynamic array to the 'at' function. Exiting the program.\n");
     exit(-1);
@@ -59,7 +57,7 @@ GENERIC_TYPE GENERIC_TYPE_at_or_die(GENERIC_TYPEDynArr a, size_t index) {
   return a.arr[index];
 }
 
-void GENERIC_TYPE_free(GENERIC_TYPEDynArr a) {
+void i64_free(i64DynArr a) {
   if (NULL == a.arr) {
     return;
   }
@@ -68,7 +66,7 @@ void GENERIC_TYPE_free(GENERIC_TYPEDynArr a) {
   a.arr = NULL;
 }
 
-u8 GENERIC_TYPE_equal(GENERIC_TYPEDynArr a1, GENERIC_TYPEDynArr a2) {
+u8 i64_equal(i64DynArr a1, i64DynArr a2) {
   size_t i;
 
   if (a1.size != a2.size) {

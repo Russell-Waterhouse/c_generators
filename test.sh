@@ -28,7 +28,7 @@ gcc \
   -Wall \
   ./test/strings.c \
   ./strings.c \
-  ./implementations/size_t_dynamic_array.c \
+  ./implementations/*.c \
   -I. \
   -o \
   test_strings

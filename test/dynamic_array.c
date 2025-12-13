@@ -9,12 +9,12 @@
 Result test_insert_back_when_empty() {
   GENERIC_TYPEDynArr arr = {0};
   arr = GENERIC_TYPE_insert_back_or_die(arr, 100);
-  if (arr.memsize == START_SIZE && arr.size == 1 && arr.arr[0] == 100) {
-    GENERIC_TYPE_free_or_die(arr);
+  if (arr.memsize == DYNAMIC_ARRAY_START_SIZE && arr.size == 1 && arr.arr[0] == 100) {
+    GENERIC_TYPE_free(arr);
     return SUCCESS;
   }
 
-  GENERIC_TYPE_free_or_die(arr);
+  GENERIC_TYPE_free(arr);
   return FAIL;
 }
 
@@ -27,18 +27,19 @@ Result test_resizing() {
   if (a.memsize == expected_memsize && a.size == one_million) {
     for (i = 0; i < one_million; i++) {
       if (GENERIC_TYPE_at_or_die(a, i) != i) {
-        GENERIC_TYPE_free_or_die(a);
+        GENERIC_TYPE_free(a);
         return FAIL;
       }
     }
 
-    GENERIC_TYPE_free_or_die(a);
+    GENERIC_TYPE_free(a);
     return SUCCESS;
   } else {
-    GENERIC_TYPE_free_or_die(a);
+    GENERIC_TYPE_free(a);
     return FAIL;
   }
 }
+
 int main() {
   puts("Starting dynamic array tests.");
   if (

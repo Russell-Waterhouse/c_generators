@@ -32,6 +32,7 @@ Result test_cstr_to_str_or_die() {
   return SUCCESS;
 }
 
+/* TODO */
 Result test_equal() {
   return SUCCESS;
 }
@@ -58,18 +59,147 @@ Result test_split() {
   return FAIL;
 }
 
+Result test_make_kmp_fail_table() {
+  char* cstr = "ABCDABD";
+  String w = cstr_to_str_or_die(cstr, strlen(cstr));
+  i64DynArr expected;
+  i64DynArr actual;
+
+  expected = i64_insert_back_or_die(expected, -1);
+  expected = i64_insert_back_or_die(expected, 0);
+  expected = i64_insert_back_or_die(expected, 0);
+  expected = i64_insert_back_or_die(expected, -1);
+  expected = i64_insert_back_or_die(expected, 0);
+  expected = i64_insert_back_or_die(expected, 2);
+  expected = i64_insert_back_or_die(expected, 0);
+  actual = make_kmp_fail_table(w);
+
+  if (!i64_equal(expected, actual)) {
+    puts("make_kmp_fail_table failed example from wikipedia");
+    i64_free(expected);
+    i64_free(actual);
+    free_str_or_die(w);
+    return FAIL;
+  }
+  i64_free(expected);
+  i64_free(actual);
+  free_str_or_die(w);
+
+  cstr = "ABACABABA";
+  w = cstr_to_str_or_die(cstr, strlen(cstr));
+  expected = i64_insert_back_or_die(expected, -1);
+  expected = i64_insert_back_or_die(expected, 0);
+  expected = i64_insert_back_or_die(expected, -1);
+  expected = i64_insert_back_or_die(expected, -1);
+  expected = i64_insert_back_or_die(expected, -1);
+  expected = i64_insert_back_or_die(expected, 0);
+  expected = i64_insert_back_or_die(expected, -1);
+  expected = i64_insert_back_or_die(expected, 3);
+  expected = i64_insert_back_or_die(expected, -1);
+  expected = i64_insert_back_or_die(expected, -3);
+  actual = make_kmp_fail_table(w);
+
+  if (!i64_equal(expected, actual)) {
+    puts("make_kmp_fail_table failed example 2 from wikipedia");
+    i64_free(expected);
+    i64_free(actual);
+    free_str_or_die(w);
+    return FAIL;
+  }
+  i64_free(expected);
+  i64_free(actual);
+  free_str_or_die(w);
+
+
+  cstr = "AB";
+  w = cstr_to_str_or_die(cstr, strlen(cstr));
+  expected = i64_insert_back_or_die(expected, -1);
+  expected = i64_insert_back_or_die(expected, 0);
+  actual = make_kmp_fail_table(w);
+
+  if (!i64_equal(expected, actual)) {
+    puts("make_kmp_fail_table failed my example");
+    i64_free(expected);
+    i64_free(actual);
+    free_str_or_die(w);
+    return FAIL;
+  }
+  i64_free(expected);
+  i64_free(actual);
+  free_str_or_die(w);
+
+  return SUCCESS;
+}
+
+void free_structs(String s, String w, SizeTDynArr res) {
+  free_str_or_die(s);
+  free_str_or_die(w);
+  size_t_free(res);
+}
+
+Result test_find_all() {
+  char* cstr_s = "";
+  char* cstr_w = "";
+  String s = cstr_to_str_or_die("", 0);
+  String w = cstr_to_str_or_die("", 0);
+  SizeTDynArr res = find_all(s, w);
+  if (0 != res.size) {
+    free_structs(s, w, res);
+    return FAIL;
+  }
+  free_structs(s, w, res);
+
+  cstr_s = "A";
+  cstr_w = "AB";
+  s = cstr_to_str_or_die(cstr_s, strlen(cstr_s));
+  w = cstr_to_str_or_die(cstr_w, strlen(cstr_w));
+  res = find_all(s, w);
+  if (0 != res.size) {
+    free_structs(s, w, res);
+    return FAIL;
+  }
+  free_structs(s, w, res);
+
+  cstr_s = "AB";
+  cstr_w = "AB";
+  s = cstr_to_str_or_die(cstr_s, strlen(cstr_s));
+  w = cstr_to_str_or_die(cstr_w, strlen(cstr_w));
+  res = find_all(s, w);
+  if (1 != res.size || 0 != res.arr[0]) {
+    free_structs(s, w, res);
+    puts("Failed to find single match when strings are equal");
+    return FAIL;
+  }
+  free_structs(s, w, res);
+  /*
+  cstr_s = "ABABABABAB";
+  cstr_w = "AB";
+  s = cstr_to_str_or_die(cstr_s, strlen(cstr_s));
+  w = cstr_to_str_or_die(cstr_w, strlen(cstr_w));
+  res = find_all(s, w);
+  if (1 != res.size || 0 != res.arr[0]) {
+    free_structs(s, w, res);
+    puts("Failed to find single match when strings are equal");
+    return FAIL;
+  }
+  free_structs(s, w, res);
+  */
+  return SUCCESS;
+}
+
 int main() {
   puts("Starting string tests.");
   if (
       test_cstr_to_str_or_die() == SUCCESS &&
       test_equal() == SUCCESS &&
-      test_split() == SUCCESS
+      test_split() == SUCCESS &&
+      test_find_all() == SUCCESS
   ) {
-    puts("Tests completed successfully!");
+    puts("\x1B[32mTests completed successfully!\033[0m\n");
     exit(0);
   }
 
 
-  puts("There were test failures.");
+  puts("\033[0;31mThere were test failures.\033[0m\n");
   exit(1);
 }

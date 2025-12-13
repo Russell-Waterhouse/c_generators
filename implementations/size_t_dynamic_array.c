@@ -3,13 +3,25 @@
 #include <stdio.h>
 #include "./size_t_dynamic_array.h"
 
-#define START_SIZE 256
 
+
+SizeTDynArr size_t_dyn_arr_initialize(size_t size) {
+  SizeTDynArr a;
+  a.size = size;
+  a.memsize = size;
+  a.arr = calloc(size, sizeof(size_t));
+  if (NULL == a.arr) {
+    puts("Failed to allocate requested memory for array");
+    exit(-1);
+  }
+
+  return a;
+}
 
 SizeTDynArr size_t_insert_back_or_die(SizeTDynArr a, size_t value) {
   if (a.size >= a.memsize) {
     if (a.memsize == 0) {
-      a.memsize = START_SIZE;
+      a.memsize = DYNAMIC_ARRAY_START_SIZE;
     } else {
       a.memsize *= 2;
     }
@@ -27,11 +39,11 @@ SizeTDynArr size_t_insert_back_or_die(SizeTDynArr a, size_t value) {
 
 size_t size_t_at_or_die(SizeTDynArr a, size_t index) {
   if (a.arr == NULL) {
-    printf("Passed a null dynamic array to the 'at' function. Exiting the program.");
+    printf("Passed a null dynamic array to the 'at' function. Exiting the program.\n");
     exit(-1);
   }
   if (index >= a.size) {
-    printf("Attempted to index an array outsize of its size. Exiting the program.");
+    printf("Attempted to index an array outside of its size %lu > %lu. Exiting the program.\n", index, a.size);
     /* TODO: print size, line number, index, callstack here. */
     exit(-1);
   }
@@ -39,10 +51,9 @@ size_t size_t_at_or_die(SizeTDynArr a, size_t index) {
   return a.arr[index];
 }
 
-void size_t_free_or_die(SizeTDynArr a) {
+void size_t_free(SizeTDynArr a) {
   if (NULL == a.arr) {
-    puts("Double free on dynamic array of type size_t");
-    exit(-1);
+    return;
   }
 
   free(a.arr);

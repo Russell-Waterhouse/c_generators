@@ -15,6 +15,7 @@ typedef struct {
 
 SizeTDynArr size_t_insert_back_or_die(SizeTDynArr a, size_t value);
 size_t size_t_at_or_die(SizeTDynArr a, size_t index);
-void size_t_free_or_die(SizeTDynArr a);
+void size_t_free(SizeTDynArr a);
+SizeTDynArr size_t_dyn_arr_initialize(size_t size);
 
 #endif
