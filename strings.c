@@ -143,13 +143,22 @@ u8 starts_with(String s, String search_str) {
  * in a string, or -1 if the search_str was not found in s.
  * Uses the Knuth–Morris–Pratt (KMP) algorithm.
  */
-i64 index_of(String s, String search_str) {
+i64 first_index_of(String s, String search_str) {
   /*size_t m, i; */
   SizeTDynArr t = {0};
   t = size_t_insert_back_or_die(t, -1);
 
   printf("size of t is now %zu", t.size);
   return -1;
+}
+
+/* substring search returning an array of indexes to all substring matches
+ * in a string, or -1 if the search_str was not found in s.
+ * Uses the Knuth–Morris–Pratt (KMP) algorithm.
+ */
+SizeTDynArr indexes_of(String s, String search_str) {
+  size_t m, i;
+  SizeTDynArr t = {0};
 }
 
 u32 replace_first(String s, String search_str, String replacement_str);

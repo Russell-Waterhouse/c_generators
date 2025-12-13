@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include "./types.h"
+#include "implementations/size_t_dynamic_array.h"
 
 typedef struct {
   size_t size;
@@ -49,7 +50,8 @@ u32 str_equal(String s1, String s2);
 ToU64Result str_to_u64(String s);
 String trim(String s);
 u32 blank(String s);
-i64 index_of(String s, String search_str);
+i64 first_index_of(String s, String search_str);
+SizeTDynArr indexes_of(String s, String search_str);
 u8 ends_with(String s, String search_str);
 u8 starts_with(String s, String search_str);
 
