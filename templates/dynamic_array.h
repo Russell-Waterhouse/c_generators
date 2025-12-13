@@ -8,7 +8,7 @@
 
 
 
-typedef i32 GENERIC_TYPE;
+typedef u64 GENERIC_TYPE;
 
 typedef struct {
   size_t size;

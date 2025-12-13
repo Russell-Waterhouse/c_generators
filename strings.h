@@ -34,9 +34,9 @@ typedef struct {
 } SliceResult;
 
 /* _or_die functions */
-String cstr_to_str_or_die(char* cstr, u32 size);
+String cstr_to_str_or_die(char* cstr, u64 size);
 void free_str_or_die(String s);
-char char_at_or_die(String s, u32 idx);
+char char_at_or_die(String s, u64 idx);
 String u64_to_str_or_die(u64 v);
 String concat_or_die(String s1, String s2);
 DynStringArr split_str_or_die(String s, char split_char);
@@ -45,12 +45,12 @@ String at_or_die(DynStringArr a, size_t index);
 char* to_cstr_or_die(String s);
 
 /* save optional/result type functions */
-SliceResult slice(String s1, u32 start, u32 end);
+SliceResult slice(String s1, u64 start, u64 end);
 SplitResultOption split_str(String s, char split_char);
-u32 str_equal(String s1, String s2);
+u64 str_equal(String s1, String s2);
 ToU64Result str_to_u64(String s);
 String trim(String s);
-u32 blank(String s);
+u64 blank(String s);
 i64 find_first(String s, String search_str);
 i64DynArr make_kmp_fail_table(String w);
 SizeTDynArr find_all(String s, String search_str);
@@ -58,8 +58,8 @@ u8 ends_with(String s, String search_str);
 u8 starts_with(String s, String search_str);
 
 /* not yet implemented functions */
-u32 replace_first(String s, String search_str, String replacement_str);
-u32 replace_all(String s, String search_str, String replacement_str);
+u64 replace_first(String s, String search_str, String replacement_str);
+u64 replace_all(String s, String search_str, String replacement_str);
 
 /* _in_place functions */
 Result strip_in_place(String s);

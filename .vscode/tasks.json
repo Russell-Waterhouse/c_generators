@@ -10,6 +10,7 @@
                 "--std=c89",
                 "-Werror",
                 "-Wall",
+                "-Wconversion",
                 "/home/russ/repos/personal/c_lib/implementations/*.c",
                 "/home/russ/repos/personal/c_lib/strings.c",
                 "${file}",

@@ -3,6 +3,8 @@
   #define TYPES
 
   #include <stdint.h>
+  #include <stdio.h>
+  #include <stdlib.h>
   typedef uint8_t u8;
   typedef uint16_t u16;
   typedef uint32_t u32;
@@ -17,6 +19,6 @@
       FAIL = 0,
       SUCCESS = 1
   } Result;
-  
+
   #define DYNAMIC_ARRAY_START_SIZE 256
 #endif

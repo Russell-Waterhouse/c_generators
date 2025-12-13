@@ -6,10 +6,11 @@
 #include "./strings.h"
 #include "./implementations/size_t_dynamic_array.h"
 #include "implementations/i64_dynamic_array.h"
+#include "./utils.h"
 
-String cstr_to_str_or_die(char* cstr, u32 size) {
+String cstr_to_str_or_die(char* cstr, u64 size) {
   String s = {0};
-  u32 i;
+  u64 i;
 
   s.str = (char*)calloc(size, sizeof(char));
   if (NULL == s.str) {
@@ -36,7 +37,7 @@ void free_str_or_die(String s) {
 }
 
 char* to_cstr_or_die(String s) {
-  u32 i;
+  u64 i;
   char* cstr = calloc(sizeof(char), s.size + 1);
   if (NULL == cstr) {
     puts("Failed to allocate memory for cstr");
@@ -51,8 +52,8 @@ char* to_cstr_or_die(String s) {
 }
 
 
-u32 str_equal(String s, String s2) {
-  u32 i;
+u64 str_equal(String s, String s2) {
+  u64 i;
   if (s.size != s2.size) {
     return 0;
   }
@@ -64,9 +65,9 @@ u32 str_equal(String s, String s2) {
   return 1;
 }
 
-char char_at_or_die(String s, u32 idx) {
+char char_at_or_die(String s, u64 idx) {
   if (s.size < idx) {
-    printf("accessing char_at with invalid index %d\n", idx);
+    printf("accessing char_at with invalid index %lu\n", idx);
     exit(-1);
   }
 
@@ -74,9 +75,9 @@ char char_at_or_die(String s, u32 idx) {
 }
 
 String concat_or_die(String s1, String s2) {
-  u32 i, j;
+  u64 i, j;
   String s = {0};
-  u32 size;
+  u64 size;
   if (NULL == s1.str || NULL == s2.str) {
     printf("Called concat with null string(s)\n");
     exit(-1);
@@ -146,11 +147,11 @@ i64DynArr make_kmp_fail_table(String w) {
 
   t.arr[0] = -1;
   while (pos < w.size) {
-    if (char_at_or_die(w, pos) == char_at_or_die(w, cnd)) {
+    if (char_at_or_die(w, i64_to_u64_or_die(pos)) == char_at_or_die(w, i64_to_u64_or_die(cnd))) {
       t.arr[pos] = t.arr[cnd];
     } else {
       t.arr[pos] = cnd;
-      while (cnd >= 0 && char_at_or_die(w, pos) != char_at_or_die(w, cnd)) {
+      while (cnd >= 0 && char_at_or_die(w, i64_to_u64_or_die(pos) != char_at_or_die(w, i64_to_u64_or_die(cnd)))) {
         cnd = t.arr[cnd];
       }
     }
@@ -178,14 +179,14 @@ i64 find_first(String s, String search_str) {
   j = 0;
   k = 0;
   while (j < s.size) {
-    if (char_at_or_die(search_str, k) == char_at_or_die(s, j)) {
+    if (char_at_or_die(search_str, i64_to_u64_or_die(k)) == char_at_or_die(s, i64_to_u64_or_die(j))) {
       j++;
       k++;
       if (k == search_str.size) {
         return j - k;
       }
     } else {
-      k = i64_at_or_die(t, k);
+      k = i64_at_or_die(t, i64_to_u64_or_die(k));
       if (k < 0) {
         j++;
         k++;
@@ -213,15 +214,15 @@ SizeTDynArr find_all(String s, String search_str) {
   j = 0;
   k = 0;
   while (j < s.size) {
-    if (char_at_or_die(search_str, k) == char_at_or_die(s, j)) {
+    if (char_at_or_die(search_str, i64_to_u64_or_die(k)) == char_at_or_die(s, i64_to_u64_or_die(j))) {
       j++;
       k++;
       if (k == search_str.size) {
-        found_positions = size_t_insert_back_or_die(found_positions, j - k);
-        k = i64_at_or_die(t, k);
+        found_positions = size_t_insert_back_or_die(found_positions, i64_to_u64_or_die(j - k));
+        k = i64_at_or_die(t, i64_to_u64_or_die(k));
       }
     } else {
-      k = i64_at_or_die(t, k);
+      k = i64_at_or_die(t, i64_to_u64_or_die(k));
       if (k < 0) {
         j++;
         k++;
@@ -233,14 +234,14 @@ SizeTDynArr find_all(String s, String search_str) {
   return found_positions;
 }
 
-u32 replace_first(String s, String search_str, String replacement_str);
-u32 replace_all(String s, String search_str, String replacement_str);
+u64 replace_first(String s, String search_str, String replacement_str);
+u64 replace_all(String s, String search_str, String replacement_str);
 
 
-SliceResult slice(String s, u32 start, u32 end) {
+SliceResult slice(String s, u64 start, u64 end) {
   SliceResult res;
-  u32 i;
-  u32 size;
+  u64 i;
+  u64 size;
   String slice = {0};
 
   if (start > end || NULL == s.str) {
@@ -269,8 +270,8 @@ SliceResult slice(String s, u32 start, u32 end) {
 SplitResultOption split_str(String s, char split_char) {
   SplitResultOption res;
   DynStringArr strs = {0};
-  u32 i;
-  u32 start;
+  u64 i;
+  u64 start;
 
   start = 0;
   for (i = 0; i < s.size; i++) {
@@ -294,8 +295,8 @@ SplitResultOption split_str(String s, char split_char) {
 
 DynStringArr split_str_or_die(String s, char split_char) {
   DynStringArr strs = {0};
-  u32 i;
-  u32 start;
+  u64 i;
+  u64 start;
 
   start = 0;
   for (i = 0; i < s.size; i++) {
@@ -317,8 +318,8 @@ DynStringArr split_str_or_die(String s, char split_char) {
 
 String trim(String s);
 
-u32 blank(String s) {
-  u32 i;
+u64 blank(String s) {
+  u64 i;
   if (NULL == s.str) {
     return 1;
   }
@@ -347,7 +348,7 @@ ToU64Result str_to_u64(String s) {
       return res;
     }
     result *= 10;
-    result += (c - '0');
+    result += i64_to_u64_or_die(c - '0');
   }
 
 
@@ -359,7 +360,7 @@ ToU64Result str_to_u64(String s) {
 
 
 String u64_to_str_or_die(u64 v) {
-  /* u32 has a max of 20 digits */
+  /* u64 has a max of 20 digits */
   char str[32];
   sprintf(str, "%lu", v);
   String s = cstr_to_str_or_die(str, strlen(str));

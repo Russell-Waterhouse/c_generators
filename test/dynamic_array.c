@@ -20,7 +20,7 @@ Result test_insert_back_when_empty() {
 
 Result test_resizing() {
   GENERIC_TYPEDynArr a = {0};
-  i32 i;
+  u64 i;
   for (i = 0; i < one_million; i++) {
     GENERIC_TYPE_insert_back_or_die(a, i);
   }

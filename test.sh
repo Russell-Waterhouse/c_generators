@@ -11,8 +11,10 @@ gcc \
   --std=c89 \
   -Werror \
   -Wall \
+  -Wconversion \
   ./test/dynamic_array.c \
   ./templates/dynamic_array.c \
+  ./utils.c \
   -I. \
   -o \
   test_dynamic_array
@@ -26,9 +28,11 @@ gcc \
   --std=c89 \
   -Werror \
   -Wall \
+  -Wconversion \
   ./test/strings.c \
   ./strings.c \
   ./implementations/*.c \
+  ./utils.c \
   -I. \
   -o \
   test_strings
