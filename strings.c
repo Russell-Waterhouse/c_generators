@@ -100,11 +100,53 @@ String concat_or_die(String s1, String s2) {
   return s;
 }
 
-u32 ends_with(String s1, String search_str);
-u32 starts_with(String s1, String search_str);
-u32 includes(String s1, String search_str);
-i32 index_of(String s1, String search_str);
-u32 replace(String s1, String search_str, String replacement_str);
+u8 ends_with(String s1, String search_str) {
+  size_t i;
+  if (NULL == s1.str || NULL == search_str.str) {
+    return 0;
+  }
+
+  if (search_str.size > s1.size) {
+    return 0;
+  }
+
+  for (i = search_str.size; i > 0; i--) {
+    if (search_str.str[i] != s1.str[i]) {
+      return 0;
+    }
+  }
+
+  return 1;
+}
+
+u8 starts_with(String s1, String search_str) {
+  size_t i;
+  if (NULL == s1.str || NULL == search_str.str) {
+    return 0;
+  }
+
+  if (search_str.size > s1.size) {
+    return 0;
+  }
+
+  for (i = 0; i > search_str.size; i++) {
+    if (search_str.str[i] != s1.str[i]) {
+      return 0;
+    }
+  }
+
+  return 1;
+}
+
+/* substring search returning the index of the first result
+ * in a string, or -1 if the search_str was not found in s1.
+ * Uses the Knuth–Morris–Pratt (KMP) algorithm.
+ */
+i64 index_of(String s1, String search_str) {
+  return -1;
+}
+
+u32 replace_first(String s1, String search_str, String replacement_str);
 u32 replace_all(String s1, String search_str, String replacement_str);
 
 

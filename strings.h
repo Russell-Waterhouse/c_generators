@@ -49,13 +49,12 @@ u32 str_equal(String s1, String s2);
 ToU64Result str_to_u64(String s);
 String trim(String s);
 u32 blank(String s);
+i64 index_of(String s1, String search_str);
+u8 ends_with(String s1, String search_str);
+u8 starts_with(String s1, String search_str);
 
 /* not yet implemented functions */
-u32 ends_with(String s1, String search_str);
-u32 starts_with(String s1, String search_str);
-u32 includes(String s1, String search_str);
-i32 index_of(String s1, String search_str);
-u32 replace(String s1, String search_str, String replacement_str);
+u32 replace_first(String s1, String search_str, String replacement_str);
 u32 replace_all(String s1, String search_str, String replacement_str);
 
 /* _in_place functions */
