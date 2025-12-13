@@ -1,13 +1,13 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "../templates/dynamic_array.c"
+#include "../templates/dynamic_array.h"
 #include "../types.h"
 
 #define one_million 1000000
 #define expected_memsize 0b01 << 20
 
 Result test_insert_back_when_empty() {
-  DynArr arr = {0};
+  GENERIC_TYPEDynArr arr = {0};
   arr = GENERIC_TYPE_insert_back_or_die(arr, 100);
   if (arr.memsize == START_SIZE && arr.size == 1 && arr.arr[0] == 100) {
     GENERIC_TYPE_free_or_die(arr);
@@ -19,7 +19,7 @@ Result test_insert_back_when_empty() {
 }
 
 Result test_resizing() {
-  DynArr a = {0};
+  GENERIC_TYPEDynArr a = {0};
   i32 i;
   for (i = 0; i < one_million; i++) {
     GENERIC_TYPE_insert_back_or_die(a, i);

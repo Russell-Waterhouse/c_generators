@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include "./types.h"
 #include "./strings.h"
+#include "./implementations/size_t_dynamic_array.h"
 
 #define START_SIZE 255
 
@@ -51,13 +52,13 @@ char* to_cstr_or_die(String s) {
 }
 
 
-u32 str_equal(String s1, String s2) {
+u32 str_equal(String s, String s2) {
   u32 i;
-  if (s1.size != s2.size) {
+  if (s.size != s2.size) {
     return 0;
   }
-  for(i = 0; i < s1.size; i++) {
-    if (s1.str[i] != s2.str[i]) {
+  for(i = 0; i < s.size; i++) {
+    if (s.str[i] != s2.str[i]) {
       return 0;
     }
   }
@@ -100,18 +101,18 @@ String concat_or_die(String s1, String s2) {
   return s;
 }
 
-u8 ends_with(String s1, String search_str) {
+u8 ends_with(String s, String search_str) {
   size_t i;
-  if (NULL == s1.str || NULL == search_str.str) {
+  if (NULL == s.str || NULL == search_str.str) {
     return 0;
   }
 
-  if (search_str.size > s1.size) {
+  if (search_str.size > s.size) {
     return 0;
   }
 
   for (i = search_str.size; i > 0; i--) {
-    if (search_str.str[i] != s1.str[i]) {
+    if (search_str.str[i] != s.str[i]) {
       return 0;
     }
   }
@@ -119,18 +120,18 @@ u8 ends_with(String s1, String search_str) {
   return 1;
 }
 
-u8 starts_with(String s1, String search_str) {
+u8 starts_with(String s, String search_str) {
   size_t i;
-  if (NULL == s1.str || NULL == search_str.str) {
+  if (NULL == s.str || NULL == search_str.str) {
     return 0;
   }
 
-  if (search_str.size > s1.size) {
+  if (search_str.size > s.size) {
     return 0;
   }
 
   for (i = 0; i > search_str.size; i++) {
-    if (search_str.str[i] != s1.str[i]) {
+    if (search_str.str[i] != s.str[i]) {
       return 0;
     }
   }
@@ -139,42 +140,48 @@ u8 starts_with(String s1, String search_str) {
 }
 
 /* substring search returning the index of the first result
- * in a string, or -1 if the search_str was not found in s1.
+ * in a string, or -1 if the search_str was not found in s.
  * Uses the Knuth–Morris–Pratt (KMP) algorithm.
  */
-i64 index_of(String s1, String search_str) {
+i64 index_of(String s, String search_str) {
+  /*size_t m, i; */
+  SizeTDynArr t = {0};
+  t = size_t_insert_back_or_die(t, -1);
+
+  printf("size of t is now %zu", t.size);
   return -1;
 }
 
-u32 replace_first(String s1, String search_str, String replacement_str);
-u32 replace_all(String s1, String search_str, String replacement_str);
+u32 replace_first(String s, String search_str, String replacement_str);
+u32 replace_all(String s, String search_str, String replacement_str);
 
 
-SliceResult slice(String s1, u32 start, u32 end) {
+SliceResult slice(String s, u32 start, u32 end) {
   SliceResult res;
   u32 i;
   u32 size;
-  String s = {0};
+  String slice = {0};
 
-  if (start > end) {
+  if (start > end || NULL == s.str) {
     res.status = FAIL;
     return res;
   }
   size = end - start;
 
-  s.str = (char*)calloc(size, sizeof(char));
-  if (!s.str) {
+  slice.str = (char*)calloc(size, sizeof(char));
+  if (NULL == slice.str) {
+    puts("Failed to allocate memory for string slice");
     res.status = FAIL;
     return res;
   }
 
   for(i = 0; i < end - start; i++) {
-    s.str[i] = s1.str[i+start];
+    slice.str[i] = s.str[i+start];
   }
-  s.size = size;
-  s.memsize = size;
+  slice.size = size;
+  slice.memsize = size;
   res.status = SUCCESS;
-  res.slice = s;
+  res.slice = slice;
   return res;
 }
 

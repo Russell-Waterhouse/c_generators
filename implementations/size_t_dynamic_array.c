@@ -1,26 +1,19 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "../types.h"
+#include "./size_t_dynamic_array.h"
 
 #define START_SIZE 256
 
-typedef i32 GENERIC_TYPE;
 
-typedef struct {
-  size_t size;
-  size_t memsize;
-  GENERIC_TYPE* arr;
-} GENERIC_TYPEDynArr;
-
-GENERIC_TYPEDynArr GENERIC_TYPE_insert_back_or_die(GENERIC_TYPEDynArr a, GENERIC_TYPE value) {
+SizeTDynArr size_t_insert_back_or_die(SizeTDynArr a, size_t value) {
   if (a.size >= a.memsize) {
     if (a.memsize == 0) {
       a.memsize = START_SIZE;
     } else {
       a.memsize *= 2;
     }
-    a.arr = realloc(a.arr, a.memsize * sizeof(GENERIC_TYPE));
+    a.arr = realloc(a.arr, a.memsize * sizeof(size_t));
     if (a.arr == NULL) {
       printf("Failed to allocate memory for array holder\n");
       exit(-1);
@@ -32,7 +25,7 @@ GENERIC_TYPEDynArr GENERIC_TYPE_insert_back_or_die(GENERIC_TYPEDynArr a, GENERIC
   return a;
 }
 
-GENERIC_TYPE GENERIC_TYPE_at_or_die(GENERIC_TYPEDynArr a, size_t index) {
+size_t size_t_at_or_die(SizeTDynArr a, size_t index) {
   if (a.arr == NULL) {
     printf("Passed a null dynamic array to the 'at' function. Exiting the program.");
     exit(-1);
@@ -46,9 +39,9 @@ GENERIC_TYPE GENERIC_TYPE_at_or_die(GENERIC_TYPEDynArr a, size_t index) {
   return a.arr[index];
 }
 
-void GENERIC_TYPE_free_or_die(GENERIC_TYPEDynArr a) {
+void size_t_free_or_die(SizeTDynArr a) {
   if (NULL == a.arr) {
-    puts("Double free on dynamic array of type GENERIC_TYPE");
+    puts("Double free on dynamic array of type size_t");
     exit(-1);
   }
 
