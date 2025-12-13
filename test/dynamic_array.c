@@ -3,23 +3,53 @@
 #include "../templates/dynamic_array.c"
 #include "../types.h"
 
-Result test_insert_back_when_empty() {
-    DynArr* arr = insert_back(NULL, 100);
-    if (arr->memsize == START_SIZE && arr->size == 1 && arr->arr[0] == 100) {
-        return SUCCESS;
-    }
+#define one_million 1000000
+#define expected_memsize 0b01 << 20
 
-    return FAIL;
+Result test_insert_back_when_empty() {
+  DynArr arr = {0};
+  arr = GENERIC_TYPE_insert_back_or_die(arr, 100);
+  if (arr.memsize == START_SIZE && arr.size == 1 && arr.arr[0] == 100) {
+    GENERIC_TYPE_free_or_die(arr);
+    return SUCCESS;
+  }
+
+  GENERIC_TYPE_free_or_die(arr);
+  return FAIL;
 }
 
-int main() {
-    puts("Starting dynamic array tests.");
-    if (test_insert_back_when_empty() == SUCCESS) {
-        puts("Tests completed successfully!");
-        exit(0);
+Result test_resizing() {
+  DynArr a = {0};
+  i32 i;
+  for (i = 0; i < one_million; i++) {
+    GENERIC_TYPE_insert_back_or_die(a, i);
+  }
+  if (a.memsize == expected_memsize && a.size == one_million) {
+    for (i = 0; i < one_million; i++) {
+      if (GENERIC_TYPE_at_or_die(a, i) != i) {
+        GENERIC_TYPE_free_or_die(a);
+        return FAIL;
+      }
     }
 
-
-    puts("There were test failures.");
+    GENERIC_TYPE_free_or_die(a);
+    return SUCCESS;
+  } else {
+    GENERIC_TYPE_free_or_die(a);
+    return FAIL;
+  }
+}
+int main() {
+  puts("Starting dynamic array tests.");
+  if (
+      test_insert_back_when_empty() == SUCCESS &&
+      test_resizing() == SUCCESS
+  ) {
+    puts("Tests completed successfully!");
     exit(0);
+  }
+
+
+  puts("There were test failures.");
+  exit(0);
 }

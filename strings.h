@@ -4,35 +4,35 @@
 #include <stddef.h>
 #include "./types.h"
 
-typedef struct String {
+typedef struct {
   size_t size;
   size_t memsize;
   char* str;
 } String;
 
-typedef struct DynStringArr {
+typedef struct {
   size_t memsize;
   size_t size;
   String* arr;
 } DynStringArr;
 
-typedef struct SplitResultOption {
+typedef struct {
   Result status;
   u32 num_strs;
   DynStringArr* strs;
 } SplitResultOption;
 
-typedef struct SplitResult {
+typedef struct {
   u32 num_strs;
   DynStringArr* strs;
 } SplitResult;
 
-typedef struct ToU64Result {
+typedef struct {
   Result status;
   u64 result;
 } ToU64Result;
 
-typedef struct SliceResult {
+typedef struct {
   Result status;
   String* slice;
 } SliceResult;

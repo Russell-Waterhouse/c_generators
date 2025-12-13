@@ -3,62 +3,55 @@
 #include <stdio.h>
 #include "../types.h"
 
-#define START_SIZE 255
+#define START_SIZE 256
 
 typedef i32 GENERIC_TYPE;
 
-typedef struct DynStringArr {
-  size_t memsize;
+typedef struct {
   size_t size;
+  size_t memsize;
   GENERIC_TYPE* arr;
 } DynArr;
 
-DynArr* insert_back(DynArr* a, GENERIC_TYPE value) {
-  if (a == NULL) {
-    a = calloc(1, sizeof *a);
-    if (a == NULL) {
+DynArr GENERIC_TYPE_insert_back_or_die(DynArr a, GENERIC_TYPE value) {
+  if (a.size >= a.memsize) {
+    if (a.memsize == 0) {
+      a.memsize = START_SIZE;
+    } else {
+      a.memsize *= 2;
+    }
+    a.arr = realloc(a.arr, a.memsize * sizeof(GENERIC_TYPE));
+    if (a.arr == NULL) {
       printf("Failed to allocate memory for array holder\n");
       exit(-1);
     }
-
-    a->arr = calloc(START_SIZE, sizeof(GENERIC_TYPE));
-    if (!a->arr) {
-      printf("Failed to allocate memory for array\n");
-      exit(-1);
-    }
-
-    a->memsize = START_SIZE;
-    a->arr[a->size] = value;
-    a->size++;
-    return a;
   }
 
-  if (a->size >= a->memsize) {
-    size_t new_memsize = a->memsize * 2;
-    a = realloc(a, new_memsize);
-    if (a == NULL) {
-      printf("Failed to allocate memory for array");
-      exit(-1);
-    }
-    a->memsize = new_memsize;
-  }
-  a->arr[a->size] = value;
-  a->size++;
+  a.arr[a.size++] = value;
+
   return a;
 }
 
-GENERIC_TYPE at(DynArr* a, size_t index) {
-  if (a == NULL) {
+GENERIC_TYPE GENERIC_TYPE_at_or_die(DynArr a, size_t index) {
+  if (a.arr == NULL) {
     printf("Passed a null dynamic array to the 'at' function. Exiting the program.");
     exit(-1);
   }
-  if (index >= a->size) {
+  if (index >= a.size) {
     printf("Attempted to index an array outsize of its size. Exiting the program.");
     /* TODO: print size, line number, index, callstack here. */
     exit(-1);
   }
 
-  return a->arr[index];
+  return a.arr[index];
 }
 
+void GENERIC_TYPE_free_or_die(DynArr a) {
+  if (NULL == a.arr) {
+    puts("Double free on dynamic array of type GENERIC_TYPE");
+    exit(-1);
+  }
 
+  free(a.arr);
+  a.arr = NULL;
+}
