@@ -15,10 +15,23 @@
   typedef int32_t i32;
   typedef int64_t i64;
 
-  typedef enum Result {
+  typedef enum {
       FAIL = 0,
       SUCCESS = 1
   } Result;
+
+  typedef enum {
+    NONE = 0,
+    INVALID_ARG = 1,
+    MEM_ALLOC_FAIL = 2,
+    IO_DISK_FAIL = 3,
+    IO_NETWORK_FAIL = 4,
+  } ErrCode;
+
+  typedef struct {
+    ErrCode err_code;
+    char* err_msg;
+  } Error;
 
   #define DYNAMIC_ARRAY_START_SIZE 256
 #endif

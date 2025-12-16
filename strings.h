@@ -33,18 +33,33 @@ typedef struct {
   String slice;
 } SliceResult;
 
+typedef struct {
+  Result status;
+  String str;
+  Error err;
+} MakeStrResult;
+
+typedef struct {
+  Result status;
+  Error err;
+} ResultFoo;
+
+typedef struct {
+  Result status;
+  DynStringArr dyn_arr;
+  Error err;
+} DynStrArrResult;
+
 /* _or_die functions */
-String cstr_to_str_or_die(char* cstr, u64 size);
-void free_str_or_die(String s);
-char char_at_or_die(String s, u64 idx);
-String u64_to_str_or_die(u64 v);
+MakeStrResult u64_to_str_or_die(u64 v);
 String concat_or_die(String s1, String s2);
-DynStringArr split_str_or_die(String s, char split_char);
-DynStringArr insert_back_or_die(DynStringArr a, String value);
 String at_or_die(DynStringArr a, size_t index);
 char* to_cstr_or_die(String s);
 
 /* save optional/result type functions */
+DynStrArrResult insert_back(DynStringArr a, String value);
+MakeStrResult cstr_to_str(char* cstr, u64 size);
+ResultFoo free_str(String s);
 SliceResult slice(String s1, u64 start, u64 end);
 SplitResultOption split_str(String s, char split_char);
 u64 str_equal(String s1, String s2);

@@ -8,32 +8,39 @@
 #include "implementations/i64_dynamic_array.h"
 #include "./utils.h"
 
-String cstr_to_str_or_die(char* cstr, u64 size) {
-  String s = {0};
+MakeStrResult cstr_to_str(char* cstr, u64 size) {
+  MakeStrResult res = {0};
   u64 i;
 
-  s.str = (char*)calloc(size, sizeof(char));
-  if (NULL == s.str) {
-    printf("failed to allocate memory for cstr arr\n");
-    exit(-1);
+  res.str.str = (char*)calloc(size, sizeof(char));
+  if (NULL == res.str.str) {
+    res.status = FAIL;
+    res.err.err_code = MEM_ALLOC_FAIL;
+    res.err.err_msg = "Failed to allocate memory for string in __FUNCTION__";
+    return res;
   }
 
   for(i = 0; i < size; i++) {
-    s.str[i] = cstr[i];
+    res.str.str[i] = cstr[i];
   }
+  res.status = SUCCESS;
+  res.str.size = size;
+  res.str.memsize = size;
 
-  s.size = size;
-  s.memsize = size;
-
-  return s;
+  return res;
 }
 
-void free_str_or_die(String s) {
+ResultFoo free_str(String s) {
+  ResultFoo res = {0};
   if (NULL == s.str) {
-    printf("Double free attempt\n");
-    exit(-1);
+    res.status = FAIL;
+    res.err.err_code = INVALID_ARG;
+    res.err.err_msg = "Attempting to free a null string at __LINE__";
+    return res;
   }
   free(s.str);
+  res.status = SUCCESS;
+  return res;
 }
 
 char* to_cstr_or_die(String s) {
@@ -65,14 +72,6 @@ u64 str_equal(String s, String s2) {
   return 1;
 }
 
-char char_at_or_die(String s, u64 idx) {
-  if (s.size < idx) {
-    printf("accessing char_at with invalid index %lu\n", idx);
-    exit(-1);
-  }
-
-  return s.str[idx];
-}
 
 String concat_or_die(String s1, String s2) {
   u64 i, j;
@@ -147,11 +146,13 @@ i64DynArr make_kmp_fail_table(String w) {
 
   t.arr[0] = -1;
   while (pos < w.size) {
-    if (char_at_or_die(w, i64_to_u64_or_die(pos)) == char_at_or_die(w, i64_to_u64_or_die(cnd))) {
+    u64 pos_u64 = i64_to_u64_or_die(pos);
+    u64 cnd_u64 = i64_to_u64_or_die(cnd);
+    if (w.str[pos_u64] == w.str[cnd_u64]) {
       t.arr[pos] = t.arr[cnd];
     } else {
       t.arr[pos] = cnd;
-      while (cnd >= 0 && char_at_or_die(w, i64_to_u64_or_die(pos) != char_at_or_die(w, i64_to_u64_or_die(cnd)))) {
+      while (cnd >= 0 && w.str[pos_u64] != w.str[i64_to_u64_or_die(cnd)]) {
         cnd = t.arr[cnd];
       }
     }
@@ -179,7 +180,7 @@ i64 find_first(String s, String search_str) {
   j = 0;
   k = 0;
   while (j < s.size) {
-    if (char_at_or_die(search_str, i64_to_u64_or_die(k)) == char_at_or_die(s, i64_to_u64_or_die(j))) {
+    if (search_str.str[i64_to_u64_or_die(k)] == s.str[i64_to_u64_or_die(j)]) {
       j++;
       k++;
       if (k == search_str.size) {
@@ -214,7 +215,7 @@ SizeTDynArr find_all(String s, String search_str) {
   j = 0;
   k = 0;
   while (j < s.size) {
-    if (char_at_or_die(search_str, i64_to_u64_or_die(k)) == char_at_or_die(s, i64_to_u64_or_die(j))) {
+    if (search_str.str[i64_to_u64_or_die(k)] == s.str[i64_to_u64_or_die(j)]) {
       j++;
       k++;
       if (k == search_str.size) {
@@ -269,7 +270,7 @@ SliceResult slice(String s, u64 start, u64 end) {
 
 SplitResultOption split_str(String s, char split_char) {
   SplitResultOption res;
-  DynStringArr strs = {0};
+  DynStrArrResult strs = {0};
   u64 i;
   u64 start;
 
@@ -277,44 +278,36 @@ SplitResultOption split_str(String s, char split_char) {
   for (i = 0; i < s.size; i++) {
     if (s.str[i] == split_char) {
       SliceResult slice_result = slice(s, start, i);
-      /* TODO: if sliceresult.status == success, do the rest*/
-      strs = insert_back_or_die(strs, slice_result.slice);
+      if (slice_result.status == FAIL) {
+        res.status = FAIL;
+        return res;
+      }
+      strs = insert_back(strs.dyn_arr, slice_result.slice);
+      if (strs.status != SUCCESS) {
+        res.status = FAIL;
+        return res;
+      }
       start = i + 1;
     }
   }
   if (start != i) {
       SliceResult slice_result = slice(s, start, i);
-      /* TODO: if sliceresult.status == success, do the rest*/
-      strs = insert_back_or_die(strs, slice_result.slice);
+      if (slice_result.status == FAIL) {
+        res.status = FAIL;
+        return res;
+      }
+      strs = insert_back(strs.dyn_arr, slice_result.slice);
+      if (strs.status != SUCCESS) {
+        res.status = FAIL;
+        return res;
+      }
       start = i + 1;
   }
   res.status = SUCCESS;
-  res.strs = strs;
+  res.strs = strs.dyn_arr;
   return res;
 }
 
-DynStringArr split_str_or_die(String s, char split_char) {
-  DynStringArr strs = {0};
-  u64 i;
-  u64 start;
-
-  start = 0;
-  for (i = 0; i < s.size; i++) {
-    if (s.str[i] == split_char) {
-      SliceResult slice_result = slice(s, start, i);
-      /* TODO: if sliceresult.status == success, do the rest*/
-      strs = insert_back_or_die(strs, slice_result.slice);
-      start = i + 1;
-    }
-  }
-  if (start != i) {
-      SliceResult slice_result = slice(s, start, i);
-      /* TODO: if sliceresult.status == success, do the rest*/
-      strs = insert_back_or_die(strs, slice_result.slice);
-      start = i + 1;
-  }
-  return strs;
-}
 
 String trim(String s);
 
@@ -359,13 +352,11 @@ ToU64Result str_to_u64(String s) {
 }
 
 
-String u64_to_str_or_die(u64 v) {
+MakeStrResult u64_to_str_or_die(u64 v) {
   /* u64 has a max of 20 digits */
   char str[32];
   sprintf(str, "%lu", v);
-  String s = cstr_to_str_or_die(str, strlen(str));
-
-  return s;
+  return cstr_to_str(str, strlen(str));
 }
 
 
@@ -378,7 +369,8 @@ Result strip_in_place(String s) {
   return SUCCESS;
 }
 
-DynStringArr insert_back_or_die(DynStringArr a, String value) {
+DynStrArrResult insert_back(DynStringArr a, String value) {
+  DynStrArrResult res;
   if (a.size >= a.memsize) {
     if (a.memsize <= a.size) {
       a.memsize = DYNAMIC_ARRAY_START_SIZE;
@@ -387,13 +379,16 @@ DynStringArr insert_back_or_die(DynStringArr a, String value) {
     }
     a.arr = realloc(a.arr, a.memsize);
     if (a.arr == NULL) {
-      printf("Failed to allocate memory for array");
-      exit(-1);
+      res.status = FAIL;
+      res.err.err_code = MEM_ALLOC_FAIL;
+      return res;
     }
   }
 
   a.arr[a.size++] = value;
-  return a;
+  res.dyn_arr = a;
+  res.status = SUCCESS;
+  return res;
 }
 
 String at_or_die(DynStringArr a, size_t index) {
