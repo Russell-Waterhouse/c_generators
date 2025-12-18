@@ -1,4 +1,10 @@
-# C Generator - Generate Data Structures and Algorithms For Your Types in C
+# C Library - Russell's personal C standard library
+
+## WARNING
+
+While this project is MIT Licensed, I do not recommend using it.
+The APIs are unstable and incomplete, and I do not plan on marking them
+stable until I am 100% happy with them.
 
 ## About the Project
 
