@@ -33,14 +33,5 @@
     char* err_msg;
   } Error;
 
-  typedef enum {
-      NONE = 0,
-      INVALID_ARGUMENT = 1,
-      MEMORY_ALLOCATION_FAILED = 2,
-      DISK_IO_FAILED = 3,
-      NETWORK_IO_FAILED = 4,
-      MATH_OPERATION_FAILED = 5
-  } ERROR;
-
   #define DYNAMIC_ARRAY_START_SIZE 256
 #endif
