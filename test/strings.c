@@ -8,7 +8,7 @@ Result test_cstr_to_str() {
   char s1[] = "";
   char s2[] = "This is a string";
   char s3[] = "This is another string";
-  MakeStrResult s = cstr_to_str(s1, strlen(s1));
+  StrResult s = cstr_to_str(s1, strlen(s1));
   if (s.status != SUCCESS || s.str.size != 0 || s.str.memsize != 0) {
     printf("case 1 failed; size: %ld; memsize: %ld;\n", s.str.size, s.str.memsize);
     return FAIL;

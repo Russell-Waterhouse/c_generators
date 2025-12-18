@@ -33,5 +33,16 @@
     char* err_msg;
   } Error;
 
+  typedef struct {
+    Result status;
+    Error err;
+  } ActionResult;
+
+  typedef struct {
+    Result status;
+    Error err;
+    u64 res;
+  } u64Result;
+
   #define DYNAMIC_ARRAY_START_SIZE 256
 #endif

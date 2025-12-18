@@ -14,7 +14,7 @@ Result compile(char* inputs, char* output) {
     "-o ",
     output,
   };
-  String compile_cmd_str = cstrs_to_str_or_die(compile_cmd);
+  String compile_cmd_str = cstrs_to_str_unsafe(compile_cmd).str;
 
   free_str(compile_cmd_str);
 }

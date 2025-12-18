@@ -8,8 +8,8 @@
 #include "implementations/i64_dynamic_array.h"
 #include "./utils.h"
 
-MakeStrResult cstr_to_str(char* cstr, u64 size) {
-  MakeStrResult res = {0};
+StrResult cstr_to_str(char* cstr, u64 size) {
+  StrResult res = {0};
   u64 i;
 
   res.str.str = (char*)calloc(size, sizeof(char));
@@ -30,8 +30,8 @@ MakeStrResult cstr_to_str(char* cstr, u64 size) {
   return res;
 }
 
-ResultFoo free_str(String s) {
-  ResultFoo res = {0};
+ActionResult free_str(String s) {
+  ActionResult res = {0};
   if (NULL == s.str) {
     res.status = FAIL;
     res.err.err_code = INVALID_ARG;
@@ -43,23 +43,7 @@ ResultFoo free_str(String s) {
   return res;
 }
 
-char* to_cstr_or_die(String s) {
-  u64 i;
-  char* cstr = calloc(sizeof(char), s.size + 1);
-  if (NULL == cstr) {
-    puts("Failed to allocate memory for cstr");
-    exit(-1);
-  }
-
-  for (i = 0; i < s.size; i++) {
-    cstr[i] = s.str[i];
-  }
-  cstr[s.size] = '\0';
-  return cstr;
-}
-
-
-u64 str_equal(String s, String s2) {
+u8 str_equal(String s, String s2) {
   u64 i;
   if (s.size != s2.size) {
     return 0;
@@ -72,29 +56,34 @@ u64 str_equal(String s, String s2) {
   return 1;
 }
 
-
-String concat_or_die(String s1, String s2) {
+StrResult concat(String s1, String s2) {
   u64 i, j;
-  String s = {0};
+  StrResult s = {0};
   u64 size;
-  if (NULL == s1.str || NULL == s2.str) {
-    printf("Called concat with null string(s)\n");
-    exit(-1);
+  if (
+    (s1.size > 0 && NULL == s1.str) ||
+    (s2.size > 0 && NULL == s2.str)
+  ) {
+    s.status = FAIL;
+    s.err.err_code = INVALID_ARG;
+    s.err.err_msg = "String with non-zero size has null string at concat";
+    return s;
   }
   size = s1.size + s2.size;
 
-
-  s.str = calloc(size, sizeof(char));
-  if (NULL == s.str) {
-    printf("failed to allocate memory for concatenated arr\n");
-    exit(-1);
+  s.str.str = calloc(size, sizeof(char));
+  if (NULL == s.str.str) {
+    s.status = FAIL;
+    s.err.err_code = MEM_ALLOC_FAIL;
+    s.err.err_msg = "Failed to allocate memory when concatenating strings";
+    return s;
   }
 
   for(i = 0; i < s1.size; i++) {
-    s.str[i] = s1.str[i];
+    s.str.str[i] = s1.str[i];
   }
   for(j = 0; j < s2.size; j++, i++) {
-    s.str[i] = s2.str[j];
+    s.str.str[i] = s2.str[j];
   }
 
   return s;
@@ -146,13 +135,15 @@ i64DynArr make_kmp_fail_table(String w) {
 
   t.arr[0] = -1;
   while (pos < w.size) {
-    u64 pos_u64 = i64_to_u64_or_die(pos);
-    u64 cnd_u64 = i64_to_u64_or_die(cnd);
+    /* since the values of pos and cnd are controlled by an algorithm,
+     * we make unchecked casts here */
+    u64 pos_u64 = (u64)pos;
+    u64 cnd_u64 = (u64)cnd;
     if (w.str[pos_u64] == w.str[cnd_u64]) {
       t.arr[pos] = t.arr[cnd];
     } else {
       t.arr[pos] = cnd;
-      while (cnd >= 0 && w.str[pos_u64] != w.str[i64_to_u64_or_die(cnd)]) {
+      while (cnd >= 0 && w.str[pos_u64] != w.str[(u64)cnd]) {
         cnd = t.arr[cnd];
       }
     }
@@ -180,14 +171,14 @@ i64 find_first(String s, String search_str) {
   j = 0;
   k = 0;
   while (j < s.size) {
-    if (search_str.str[i64_to_u64_or_die(k)] == s.str[i64_to_u64_or_die(j)]) {
+    if (search_str.str[(u64)k] == s.str[(u64)j]) {
       j++;
       k++;
       if (k == search_str.size) {
         return j - k;
       }
     } else {
-      k = i64_at_or_die(t, i64_to_u64_or_die(k));
+      k = t.arr[(u64)k];
       if (k < 0) {
         j++;
         k++;
@@ -212,18 +203,20 @@ SizeTDynArr find_all(String s, String search_str) {
     return found_positions;
   }
 
+  /* Since j and k are controlled by known algorithms, we make unchecked
+   * casts with them */
   j = 0;
   k = 0;
   while (j < s.size) {
-    if (search_str.str[i64_to_u64_or_die(k)] == s.str[i64_to_u64_or_die(j)]) {
+    if (search_str.str[(u64)k] == s.str[(u64)j]) {
       j++;
       k++;
       if (k == search_str.size) {
-        found_positions = size_t_insert_back_or_die(found_positions, i64_to_u64_or_die(j - k));
-        k = i64_at_or_die(t, i64_to_u64_or_die(k));
+        found_positions = size_t_insert_back_or_die(found_positions, (u64)(j - k));
+        k = t.arr[(u64)k];
       }
     } else {
-      k = i64_at_or_die(t, i64_to_u64_or_die(k));
+      k = t.arr[(u64)k];
       if (k < 0) {
         j++;
         k++;
@@ -324,11 +317,13 @@ u64 blank(String s) {
   return 1;
 }
 
-ToU64Result str_to_u64(String s) {
-  ToU64Result res;
+u64Result str_to_u64(String s) {
+  u64Result res;
   u64 result = 0;
-  if (NULL == s.str) {
+  if (s.size == 0 || NULL == s.str) {
     res.status = FAIL;
+    res.err.err_code = INVALID_ARG;
+    res.err.err_msg = "Cannot cast a null string to u64";
     return res;
   }
 
@@ -341,18 +336,20 @@ ToU64Result str_to_u64(String s) {
       return res;
     }
     result *= 10;
-    result += i64_to_u64_or_die(c - '0');
+    /* This can never be negative so we're not checking for errors with this cast */
+    u64Result res = i64_to_u64(c - '0');
+    if (res.status == FAIL) {
+    }
+    result += res.res;
   }
 
-
   res.status = SUCCESS;
-  res.result = result;
-
+  res.res = result;
   return res;
 }
 
 
-MakeStrResult u64_to_str_or_die(u64 v) {
+StrResult u64_to_str(u64 v) {
   /* u64 has a max of 20 digits */
   char str[32];
   sprintf(str, "%lu", v);
@@ -391,7 +388,7 @@ DynStrArrResult insert_back(DynStringArr a, String value) {
   return res;
 }
 
-String at_or_die(DynStringArr a, size_t index) {
+String at(DynStringArr a, size_t index) {
   if (index >= a.size) {
     printf("Attempted to index an array outside of its size. Exiting the program.");
     exit(-1);

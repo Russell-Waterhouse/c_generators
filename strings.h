@@ -25,11 +25,6 @@ typedef struct {
 
 typedef struct {
   Result status;
-  u64 result;
-} ToU64Result;
-
-typedef struct {
-  Result status;
   String slice;
 } SliceResult;
 
@@ -37,12 +32,7 @@ typedef struct {
   Result status;
   String str;
   Error err;
-} MakeStrResult;
-
-typedef struct {
-  Result status;
-  Error err;
-} ResultFoo;
+} StrResult;
 
 typedef struct {
   Result status;
@@ -50,20 +40,19 @@ typedef struct {
   Error err;
 } DynStrArrResult;
 
-/* _or_die functions */
-MakeStrResult u64_to_str_or_die(u64 v);
-String concat_or_die(String s1, String s2);
-String at_or_die(DynStringArr a, size_t index);
-char* to_cstr_or_die(String s);
 
 /* save optional/result type functions */
+String str_at(DynStringArr a, size_t index);
+StrResult u64_to_str(u64 v);
+StrResult concat(String s1, String s2);
 DynStrArrResult insert_back(DynStringArr a, String value);
-MakeStrResult cstr_to_str(char* cstr, u64 size);
-ResultFoo free_str(String s);
+StrResult cstr_to_str(char* cstr, u64 size);
+StrResult cstrs_to_str_unsafe(char** cstr);
+ActionResult free_str(String s);
 SliceResult slice(String s1, u64 start, u64 end);
 SplitResultOption split_str(String s, char split_char);
-u64 str_equal(String s1, String s2);
-ToU64Result str_to_u64(String s);
+u8 str_equal(String s1, String s2);
+u64Result str_to_u64(String s);
 String trim(String s);
 u64 blank(String s);
 i64 find_first(String s, String search_str);
