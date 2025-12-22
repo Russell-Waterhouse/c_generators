@@ -44,5 +44,15 @@
     u64 res;
   } u64Result;
 
+  union PointerOrErrror {
+    Error err;
+    void* res;
+  };
+
+  typedef struct {
+    Result status;
+    union PointerOrErrror val;
+  } PointerResult;
+
   #define DYNAMIC_ARRAY_START_SIZE 256
 #endif
