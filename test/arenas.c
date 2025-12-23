@@ -35,8 +35,34 @@ Result test_push() {
   *ru16 = 0;
   *ru32 = 0xFFFFFF;
   *ru64 = 0;
+  if (
+      *ru8 != 0xFF ||
+      *ru16 != 0 ||
+      *ru32 != 0xFFFFFF ||
+      *ru64 != 0
+  ) {
+    arena_free(&a);
+    return FAIL;
+  }
 
-  printf("%u, %u, %u, %lu\n", *ru8, *ru16, *ru32, *ru64);
+  PointerResult rarr = arena_push(&a, sizeof(u16) * 255);
+  if (rarr.status != SUCCESS) {
+    arena_free(&a);
+    return FAIL;
+  }
+
+  u16 * arr = (u16*)rarr.val.res;
+  u8 i;
+  for(i = 0; i < 255; i++) {
+    arr[i] = i;
+  }
+
+  for(i = 0; i < 255; i++) {
+    if (arr[i] != i) {
+      arena_free(&a);
+      return FAIL;
+    }
+  }
 
   arena_free(&a);
   return SUCCESS;
