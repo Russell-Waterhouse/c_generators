@@ -27,4 +27,6 @@ to print the help info.
 
 ## How to Run Tests
 
-// TODO: implement tests.
+```
+./test.sh
+```
