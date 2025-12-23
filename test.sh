@@ -12,6 +12,7 @@ gcc \
   -Werror \
   -Wall \
   -Wconversion \
+  -fsanitize=undefined \
   ./test/dynamic_array.c \
   ./templates/dynamic_array.c \
   ./utils.c \
@@ -29,6 +30,7 @@ gcc \
   -Werror \
   -Wall \
   -Wconversion \
+  -fsanitize=undefined \
   ./test/strings.c \
   ./strings.c \
   ./implementations/*.c \
@@ -48,6 +50,7 @@ gcc \
   -Werror \
   -Wall \
   -Wconversion \
+  -fsanitize=undefined \
   ./test/arenas.c \
   ./arenas.c \
   -I. \
