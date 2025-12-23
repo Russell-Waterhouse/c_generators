@@ -38,3 +38,20 @@ gcc \
   test_strings
 
 ./test_strings
+
+
+# Testing strings
+rm -f ./test_arenas
+
+gcc \
+  --std=c89 \
+  -Werror \
+  -Wall \
+  -Wconversion \
+  ./test/arenas.c \
+  ./arenas.c \
+  -I. \
+  -o \
+  test_arenas
+
+./test_arenas

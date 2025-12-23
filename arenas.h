@@ -9,8 +9,11 @@ typedef struct {
   size_t len;
 } Arena;
 
-
 #define ARENA_ALIGN (sizeof(void*))
+
+#define KiB(n) ((u64)(n) << 10)
+#define MiB(n) ((u64)(n) << 20)
+#define GiB(n) ((u64)(n) << 30)
 
 Result arena_create(Arena* arena, size_t size);
 PointerResult arena_push(Arena* arena, size_t size);
