@@ -9,6 +9,7 @@ Result arena_create(Arena* arena, size_t len) {
   }
   arena->current_position = arena->start_position;
   arena->len = len;
+  arena->next = NULL;
 
   return SUCCESS;
 }
@@ -28,6 +29,7 @@ PointerResult arena_push(Arena* arena, size_t size) {
   void* new_pos = aligned_current_pos + size;
 
   if (new_pos >= arena->current_position + arena->len) {
+    /* TODO: put in linked list next arena */
     p.status = FAIL;
     p.val.err.err_code = MEM_ALLOC_FAIL;
     p.val.err.err_msg = "Overran arena allocator";
@@ -46,6 +48,9 @@ Result arena_free(Arena* arena) {
     return FAIL;
   }
   free(arena->start_position);
+  if (NULL != arena->next) {
+    return arena_free(arena->next);
+  }
   return SUCCESS;
 }
 
