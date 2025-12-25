@@ -8,6 +8,10 @@
 #include "implementations/i64_dynamic_array.h"
 #include "./utils.h"
 
+#include "./implementations/size_t_dynamic_array.c"
+#include "implementations/i64_dynamic_array.c"
+#include "./utils.c"
+
 StrResult cstr_to_str(char* cstr, u64 size) {
   StrResult res = {0};
   u64 i;

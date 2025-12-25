@@ -2,16 +2,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "../types.h"
+#include "./dynamic_array.h"
 
-
-
-typedef i32 GENERIC_TYPE;
-
-typedef struct {
-  size_t size;
-  size_t memsize;
-  GENERIC_TYPE* arr;
-} GENERIC_TYPEDynArr;
 
 GENERIC_TYPEDynArr GENERIC_TYPE_dyn_arr_initialize(size_t size) {
   GENERIC_TYPEDynArr a;

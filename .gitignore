@@ -1,8 +1,2 @@
 generate
-test_ll
-test_hashmap
-test_dynamic_array
-test_strings
-
-test/strings
-test_arenas
+build/*

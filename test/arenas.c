@@ -1,5 +1,7 @@
 #include "../types.h"
 #include "../arenas.h"
+#include "../arenas.c"
+
 
 Result test_create() {
   Arena a = {0};
@@ -68,7 +70,7 @@ Result test_push() {
   return SUCCESS;
 }
 
-int main(void) {
+void test_arenas(void) {
   puts("Starting arena allocator tests.");
   if (
       test_create() == SUCCESS &&

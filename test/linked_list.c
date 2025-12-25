@@ -4,7 +4,7 @@
 #include "../types.h"
 
 Result test_insert() {
-  i32 i;
+  u64 i;
   Node* head = insert_front(NULL, 0);
   for(i = 0; i < 8; i++) {
     head = insert_front(head, i);
@@ -12,7 +12,7 @@ Result test_insert() {
   Node* curr = head;
   for(i = 7; i >= 0; i--) {
     if (curr -> value != i) {
-      printf("TEST FAIL: %d != %d\n", curr -> value, i);
+      printf("TEST FAIL: %lu != %lu\n", curr -> value, i);
       return FAIL;
     }
     curr = curr -> next;
@@ -25,13 +25,13 @@ Result test_delete() {
   return SUCCESS;
 }
 
-int main() {
-  puts("Starting tests.");
+void test_ll() {
+  puts("Starting Linked Lists tests.");
   if (test_insert() == SUCCESS && test_delete() == SUCCESS) {
-    puts("Tests completed successfully!");
-    exit(0);
+    puts("Tests completed Linked Lists successfully!");
+    return;
   }
   puts("There were test failures.");
-  exit(-1);
+  return;
 }
 

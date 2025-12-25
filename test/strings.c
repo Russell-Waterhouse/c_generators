@@ -4,6 +4,8 @@
 #include "../strings.h"
 #include "../types.h"
 
+#include "../strings.c"
+
 Result test_cstr_to_str() {
   char s1[] = "";
   char s2[] = "This is a string";
@@ -187,7 +189,7 @@ Result test_find_all() {
   return SUCCESS;
 }
 
-int main() {
+void test_strings() {
   puts("Starting string tests.");
   if (
       test_cstr_to_str() == SUCCESS &&
@@ -196,10 +198,10 @@ int main() {
       test_find_all() == SUCCESS
   ) {
     puts("\x1B[32mTests completed successfully!\033[0m\n");
-    exit(0);
+    return;
   }
 
 
   puts("\033[0;31mThere were test failures.\033[0m\n");
-  exit(1);
+  return;
 }

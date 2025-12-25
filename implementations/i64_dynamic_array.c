@@ -2,14 +2,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "../types.h"
+#include "./i64_dynamic_array.h"
 
 
-
-typedef struct {
-  size_t size;
-  size_t memsize;
-  i64* arr;
-} i64DynArr;
 
 i64DynArr i64_dyn_arr_initialize(size_t size) {
   i64DynArr a;

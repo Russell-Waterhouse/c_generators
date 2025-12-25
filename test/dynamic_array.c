@@ -1,7 +1,8 @@
-#include <stdlib.h>
 #include <stdio.h>
 #include "../templates/dynamic_array.h"
 #include "../types.h"
+
+#include "../templates/dynamic_array.c"
 
 #define one_million 1000000
 #define expected_memsize 0b01 << 20
@@ -40,17 +41,17 @@ Result test_resizing() {
   }
 }
 
-int main() {
+void test_dynamic_array() {
   puts("Starting dynamic array tests.");
   if (
       test_insert_back_when_empty() == SUCCESS &&
       test_resizing() == SUCCESS
   ) {
     puts("Tests completed successfully!");
-    exit(0);
+    return;
   }
 
 
   puts("There were test failures.");
-  exit(0);
+  return;
 }
