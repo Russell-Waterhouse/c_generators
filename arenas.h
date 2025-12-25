@@ -3,10 +3,11 @@
 
 #include <stdlib.h>
 #include "./types.h"
-typedef struct {
+typedef struct Arena {
   void* start_position;
   void* current_position;
   size_t len;
+  struct Arena* next;
 } Arena;
 
 #define ARENA_ALIGN (sizeof(void*))
