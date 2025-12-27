@@ -4,8 +4,8 @@
 
 #include "../templates/dynamic_array.c"
 
-#define one_million 1000000
-#define expected_memsize 0b01 << 20
+#define one_million (u64)1000000
+#define expected_memsize (u64)0b01 << 20
 
 Result test_insert_back_when_empty() {
   GENERIC_TYPEDynArr arr = {0};
@@ -15,6 +15,7 @@ Result test_insert_back_when_empty() {
     return SUCCESS;
   }
 
+  puts("Failed to insert back");
   GENERIC_TYPE_free(arr);
   return FAIL;
 }
@@ -23,11 +24,12 @@ Result test_resizing() {
   GENERIC_TYPEDynArr a = {0};
   u64 i;
   for (i = 0; i < one_million; i++) {
-    GENERIC_TYPE_insert_back_or_die(a, i);
+    a = GENERIC_TYPE_insert_back_or_die(a, i);
   }
   if (a.memsize == expected_memsize && a.size == one_million) {
     for (i = 0; i < one_million; i++) {
       if (GENERIC_TYPE_at_or_die(a, i) != i) {
+        puts("Resizing failed");
         GENERIC_TYPE_free(a);
         return FAIL;
       }
@@ -36,6 +38,7 @@ Result test_resizing() {
     GENERIC_TYPE_free(a);
     return SUCCESS;
   } else {
+    puts("Resizing failed to have the expected memsize and size");
     GENERIC_TYPE_free(a);
     return FAIL;
   }

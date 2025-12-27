@@ -1,10 +1,9 @@
-#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "../strings.h"
 #include "../types.h"
 
-#include "../strings.c"
+#define MY_STRINGS_IMPLEMENTATION
+#include "../strings.h"
 
 Result test_cstr_to_str() {
   char s1[] = "";
@@ -173,19 +172,24 @@ Result test_find_all() {
     return FAIL;
   }
   free_structs(s, w, res);
-  /*
   cstr_s = "ABABABABAB";
   cstr_w = "AB";
-  s = cstr_to_str(cstr_s, strlen(cstr_s));
-  w = cstr_to_str(cstr_w, strlen(cstr_w));
+  s = cstr_to_str(cstr_s, strlen(cstr_s)).str;
+  w = cstr_to_str(cstr_w, strlen(cstr_w)).str;
   res = find_all(s, w);
-  if (1 != res.size || 0 != res.arr[0]) {
+  if (
+      5 != res.size ||
+      0 != res.arr[0] ||
+      2 != res.arr[1] ||
+      4 != res.arr[2] ||
+      6 != res.arr[3] ||
+      8 != res.arr[4]
+  ) {
     free_structs(s, w, res);
-    puts("Failed to find single match when strings are equal");
+    puts("Failed to find multiple match when strings are equal");
     return FAIL;
   }
   free_structs(s, w, res);
-  */
   return SUCCESS;
 }
 
