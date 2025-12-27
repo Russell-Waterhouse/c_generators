@@ -23,8 +23,11 @@ PointerResult arena_push(Arena* arena, size_t size) {
     return p;
   }
 
-  /* TODO: Alignment */
-  void* aligned_current_pos = arena->current_position;
+  if (NULL != arena->next) {
+    return arena_push(arena->next, size);
+  }
+
+  void* aligned_current_pos = (void*)(((u64)(arena->current_position) + ((u64)(ARENA_ALIGN) - 1)) & (~((u64)(ARENA_ALIGN) - 1)));
 
   void* new_pos = aligned_current_pos + size;
 

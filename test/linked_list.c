@@ -10,7 +10,9 @@ Result test_insert() {
     head = insert_front(head, i);
   }
   Node* curr = head;
-  for(i = 7; i >= 0; i--) {
+  u64 max = 0;
+  --max;
+  for(i = 7; i != max; i--) {
     if (curr -> value != i) {
       printf("TEST FAIL: %lu != %lu\n", curr -> value, i);
       return FAIL;
