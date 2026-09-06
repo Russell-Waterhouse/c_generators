@@ -5,6 +5,7 @@
 #include <string.h>
 
 #define JSON_ARRAY_INITIAL_LEN 256
+#define JSON_OBJ_INITIAL_LEN 256
 #define STRINGIFY_INITIAL_LEN 256
 #define STACK_BUFFER_LEN 256
 #define BASE_TEN 10
@@ -84,7 +85,7 @@ typedef enum {
 
 Json parse(char *json_str, size_t json_str_len) {
   Json json = {0};
-  json.arena = arena_create(KiB(256)).arena;
+  json.arena = arena_create(MiB(16)).arena;
   // todo: look up max number of characters allowed in a number in JSON
   StackBuffer scratch = {0};
   StackBuffer state_stack = {0};
@@ -99,15 +100,33 @@ Json parse(char *json_str, size_t json_str_len) {
     case '{':
       push_stack_buffer(c, &state_stack);
       if (StartState == state) {
+        // {"foo":123}
+        // ^
         json.start = JsonStartObject;
         state = ReadingObjectKey;
         current_obj = &json.obj;
+        json.obj.capacity = JSON_OBJ_INITIAL_LEN;
+        json.obj.pairs =
+            arena_push(json.arena, sizeof(JsonValue) * json.arr.capacity)
+                .val.res;
+        json.arr.len = 0;
         continue;
       }
       if (ReadyToReadValue == state) {
+        // {"foo":{"bar":123}}
+        //        ^
         state = ReadingObjectKey;
-        current_obj->value.type = JSON_value_type_Object;
-        current_obj = current_obj->value.object_val;
+        // TODO: variable number of keys
+        current_obj->pairs[0].value.type = JSON_value_type_Object;
+
+        current_obj->pairs[0].value.object_val->capacity = JSON_OBJ_INITIAL_LEN;
+        current_obj->pairs[0].value.object_val->pairs =
+            arena_push(json.arena, sizeof(JsonValue) * json.arr.capacity)
+                .val.res;
+        current_obj->pairs[0].value.object_val->len = 0;
+
+        current_obj = current_obj->pairs[0].value.object_val;
+        debugger();
         continue;
       }
       break;
@@ -117,21 +136,23 @@ Json parse(char *json_str, size_t json_str_len) {
         exit(1);
       }
       if (ReadingObjectKey == state) {
+        // {}
+        //  ^
         // this object has no key and no value
         state = FinishedReadingObject;
         continue;
       }
       if (ReadingObjectValueInt == state) {
         long int value = flush_stack_buffer_to_int(&scratch);
-        current_obj->value.type = JSON_value_type_Int;
-        current_obj->value.int_val = value;
+        current_obj->pairs[0].value.type = JSON_value_type_Int;
+        current_obj->pairs[0].value.int_val = value;
         state = FinishedReadingObject;
         continue;
       }
       if (ReadingObjectValueFloat == state) {
         float value = flush_stack_buffer_to_float(&scratch);
-        current_obj->value.type = JSON_value_type_Float;
-        current_obj->value.float_val = value;
+        current_obj->pairs[0].value.type = JSON_value_type_Float;
+        current_obj->pairs[0].value.float_val = value;
         state = FinishedReadingObject;
         continue;
       }
@@ -173,10 +194,13 @@ Json parse(char *json_str, size_t json_str_len) {
       }
     case '"':
       if (state == ReadingObjectKeyString) {
-        current_obj->key.memsize = scratch.len;
-        current_obj->key.size = scratch.len;
+        current_obj->pairs[0].key.memsize = scratch.len;
+        current_obj->pairs[0].key.size = scratch.len;
+        if (current_obj->pairs[0].key.size > 9) {
+          debugger();
+        }
         char *dest = flush_scratch_buffer_string_to_arena(&scratch, json.arena);
-        current_obj->key.str = dest;
+        current_obj->pairs[0].key.str = dest;
         state = FinishedReadingObjectKey;
         continue;
       }
@@ -249,6 +273,10 @@ Json parse(char *json_str, size_t json_str_len) {
 }
 
 void str_push(String *s, char c) {
+  if (s->size + 1 >= s->memsize) {
+    puts("TODO: resize here str_push");
+  }
+
   s->str[s->size] = c;
   s->size += 1;
 }
@@ -258,7 +286,7 @@ void copy_int_to_string(String *s, long int v) {
   snprintf(buffr, STACK_BUFFER_LEN, "%ld", v);
   size_t str_buffr_size = strlen(buffr);
   if (s->size + str_buffr_size > s->memsize) {
-    puts("TODO: resize here");
+    puts("TODO: resize here int to string");
   }
   memcpy(&s->str[s->size], buffr, str_buffr_size);
   s->size += str_buffr_size;
@@ -269,7 +297,7 @@ void copy_float_to_string(String *s, float f) {
   snprintf(buffr, STACK_BUFFER_LEN, "%f", f);
   size_t str_buffr_size = strlen(buffr);
   if (s->size + str_buffr_size > s->memsize) {
-    puts("TODO: resize here");
+    puts("TODO: resize here float to string");
   }
   memcpy(&s->str[s->size], buffr, str_buffr_size);
   s->size += str_buffr_size;
@@ -277,8 +305,9 @@ void copy_float_to_string(String *s, float f) {
 
 void copy_key_to_string(String *s, String *key) {
   // + 2 for the characters `"":`
-  if (s->size + key->size + 2 > s->memsize) {
-    puts("TODO: resize here");
+  if (s->size + key->size + 2 >= s->memsize) {
+    debugger();
+    puts("TODO: resize here key to string");
   }
   str_push(s, '"');
   memcpy(&s->str[s->size], key->str, key->size);
@@ -300,20 +329,20 @@ String stringify(Json json) {
     str_push(&s, '{');
     push_stack_buffer('}', &state_stack);
 
-    if (current_obj->key.size == 0) {
+    if (current_obj->pairs[0].key.size == 0) {
       str_push(&s, pop_stack_buffr(&state_stack));
       break;
     }
 
-    copy_key_to_string(&s, &(current_obj->key));
+    copy_key_to_string(&s, &(current_obj->pairs[0].key));
     str_push(&s, ':');
-    if (JSON_value_type_Int == current_obj->value.type) {
-      copy_int_to_string(&s, current_obj->value.int_val);
+    if (JSON_value_type_Int == current_obj->pairs[0].value.type) {
+      copy_int_to_string(&s, current_obj->pairs[0].value.int_val);
     }
-    if (JSON_value_type_Float == current_obj->value.type) {
-      copy_float_to_string(&s, current_obj->value.float_val);
+    if (JSON_value_type_Float == current_obj->pairs[0].value.type) {
+      copy_float_to_string(&s, current_obj->pairs[0].value.float_val);
     }
-    if (JSON_value_type_Object == current_obj->value.type) {
+    if (JSON_value_type_Object == current_obj->pairs[0].value.type) {
       str_push(&s, '{');
       push_stack_buffer('}', &state_stack);
     }
@@ -329,16 +358,12 @@ String stringify(Json json) {
         copy_int_to_string(&s, val.int_val);
         if (json.arr.len > i + 1) {
           if (s.size + 1 > s.memsize) {
-            puts("TODO: resize here");
+            puts("TODO: resize here array");
           }
           str_push(&s, ',');
         }
       }
     }
-    if (s.size + 1 > s.memsize) {
-      puts("TODO: resize here");
-    }
-
     break;
   }
   }

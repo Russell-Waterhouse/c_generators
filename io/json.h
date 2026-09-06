@@ -8,6 +8,7 @@
 typedef struct JsonType JsonType;
 typedef struct JsonArray JsonArray;
 typedef struct JsonObject JsonObject;
+typedef struct JsonKV JsonKV;
 
 typedef enum {
   JSON_value_type_Int,
@@ -38,9 +39,15 @@ struct JsonArray {
   u32 capacity;
 };
 
-struct JsonObject {
+struct JsonKV {
   String key;
   JsonValue value;
+};
+
+struct JsonObject {
+  JsonKV *pairs;
+  u32 len;
+  u32 capacity;
 };
 
 typedef enum {
