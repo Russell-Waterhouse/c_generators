@@ -26,7 +26,6 @@ void push_stack_buffer(char c, StackBuffer *buffr) {
 
 char pop_stack_buffr(StackBuffer *buffr) {
   if (buffr->len < 1) {
-    debugger();
     puts("buffer under run");
     exit(1);
   }
@@ -90,8 +89,8 @@ Json parse(char *json_str, size_t json_str_len) {
   StackBuffer scratch = {0};
   StackBuffer state_stack = {0};
   ParserStateMachineState state = StartState;
-  JsonObject *current_obj = NULL;
-  for (u32 i = 0; i < json_str_len; i++) {
+  JsonValue *current_value = NULL;
+  for (size_t i = 0; i < json_str_len; i++) {
     char c = json_str[i];
     if (isspace(c)) {
       continue;
@@ -102,57 +101,55 @@ Json parse(char *json_str, size_t json_str_len) {
       if (StartState == state) {
         // {"foo":123}
         // ^
-        json.start = JsonStartObject;
+        json.value.type = JSON_value_type_Object;
         state = ReadingObjectKey;
-        current_obj = &json.obj;
-        json.obj.capacity = JSON_OBJ_INITIAL_LEN;
-        json.obj.pairs =
-            arena_push(json.arena, sizeof(JsonValue) * json.arr.capacity)
+        current_value = &json.value;
+        json.value.capacity = JSON_OBJ_INITIAL_LEN;
+        json.value.obj_pairs =
+            arena_push(json.arena, sizeof(JsonValue) * json.value.capacity)
                 .val.res;
-        json.arr.len = 0;
+        json.value.len = 0;
         continue;
       }
       if (ReadyToReadValue == state) {
         // {"foo":{"bar":123}}
         //        ^
         state = ReadingObjectKey;
-        // TODO: variable number of keys
-        current_obj->pairs[0].value.type = JSON_value_type_Object;
-
-        current_obj->pairs[0].value.object_val->capacity = JSON_OBJ_INITIAL_LEN;
-        current_obj->pairs[0].value.object_val->pairs =
-            arena_push(json.arena, sizeof(JsonValue) * json.arr.capacity)
+        current_value->obj_pairs[0].value.type = JSON_value_type_Object;
+        current_value->obj_pairs[0].value.capacity = JSON_OBJ_INITIAL_LEN;
+        current_value->obj_pairs[0].value.obj_pairs =
+            arena_push(json.arena, sizeof(JsonValue) * json.value.capacity)
                 .val.res;
-        current_obj->pairs[0].value.object_val->len = 0;
+        current_value->obj_pairs[0].value.len = 0;
 
-        current_obj = current_obj->pairs[0].value.object_val;
-        debugger();
+        current_value = &current_value->obj_pairs[0].value;
         continue;
       }
       break;
     case '}':
       if ('{' != pop_stack_buffr(&state_stack)) {
-        printf("unmatched curly brace at charcter %d\n", i);
+        printf("unmatched curly brace at charcter %zu\n", i);
         exit(1);
       }
       if (ReadingObjectKey == state) {
         // {}
         //  ^
         // this object has no key and no value
+        current_value->obj_pairs[0].key.size = 0;
         state = FinishedReadingObject;
         continue;
       }
       if (ReadingObjectValueInt == state) {
         long int value = flush_stack_buffer_to_int(&scratch);
-        current_obj->pairs[0].value.type = JSON_value_type_Int;
-        current_obj->pairs[0].value.int_val = value;
+        current_value->obj_pairs[0].value.type = JSON_value_type_Int;
+        current_value->obj_pairs[0].value.int_val = value;
         state = FinishedReadingObject;
         continue;
       }
       if (ReadingObjectValueFloat == state) {
         float value = flush_stack_buffer_to_float(&scratch);
-        current_obj->pairs[0].value.type = JSON_value_type_Float;
-        current_obj->pairs[0].value.float_val = value;
+        current_value->obj_pairs[0].value.type = JSON_value_type_Float;
+        current_value->obj_pairs[0].value.float_val = value;
         state = FinishedReadingObject;
         continue;
       }
@@ -160,12 +157,12 @@ Json parse(char *json_str, size_t json_str_len) {
     case '[':
       push_stack_buffer(c, &state_stack);
       if (state == StartState) {
-        json.start = JsonStartArray;
-        json.arr.values =
+        json.value.type = JSON_value_type_Array;
+        json.value.arr_values =
             arena_push(json.arena, sizeof(JsonValue) * JSON_ARRAY_INITIAL_LEN)
                 .val.res;
-        json.arr.capacity = JSON_ARRAY_INITIAL_LEN;
-        json.arr.len = 0;
+        json.value.capacity = JSON_ARRAY_INITIAL_LEN;
+        json.value.len = 0;
         state = ReadingArrayElement;
         continue;
       }
@@ -182,25 +179,25 @@ Json parse(char *json_str, size_t json_str_len) {
       }
       if (ReadingArrayElementInt == state) {
         state = FinishedReadingArray;
-        if (json.arr.len + 1 >= json.arr.capacity) {
+        if (json.value.len + 1 >= json.value.capacity) {
           puts("Array too long. TODO handle");
         }
-        json.arr.values[json.arr.len] = (JsonValue){0};
-        json.arr.values[json.arr.len].type = JSON_value_type_Int;
+        json.value.arr_values[json.value.len] = (JsonValue){0};
+        json.value.arr_values[json.value.len].type = JSON_value_type_Int;
         long int value = flush_stack_buffer_to_int(&scratch);
-        json.arr.values[json.arr.len].int_val = value;
-        json.arr.len++;
+        json.value.arr_values[json.value.len].int_val = value;
+        json.value.len++;
         break;
       }
     case '"':
       if (state == ReadingObjectKeyString) {
-        current_obj->pairs[0].key.memsize = scratch.len;
-        current_obj->pairs[0].key.size = scratch.len;
-        if (current_obj->pairs[0].key.size > 9) {
-          debugger();
-        }
+        current_value->obj_pairs[0].key.memsize = scratch.len;
+        current_value->obj_pairs[0].key.size = scratch.len;
+        // const char* expected = "{\"key\":12345}";
+        // if (!memcmp(expected, json_str, strlen(expected))) {
+        // }
         char *dest = flush_scratch_buffer_string_to_arena(&scratch, json.arena);
-        current_obj->pairs[0].key.str = dest;
+        current_value->obj_pairs[0].key.str = dest;
         state = FinishedReadingObjectKey;
         continue;
       }
@@ -208,16 +205,16 @@ Json parse(char *json_str, size_t json_str_len) {
         state = ReadingObjectKeyString;
         continue;
       }
-      printf("Error: unexpected character %c at index %u", c, i);
+      printf("Error: unexpected character %c at index %zu", c, i);
       exit(1);
       break;
     case ',':
       if (ReadingArrayElementInt == state) {
-        json.arr.values[json.arr.len] = (JsonValue){0};
-        json.arr.values[json.arr.len].type = JSON_value_type_Int;
+        json.value.arr_values[json.value.len] = (JsonValue){0};
+        json.value.arr_values[json.value.len].type = JSON_value_type_Int;
         long int value = flush_stack_buffer_to_int(&scratch);
-        json.arr.values[json.arr.len].int_val = value;
-        json.arr.len++;
+        json.value.arr_values[json.value.len].int_val = value;
+        json.value.len++;
       }
       break;
     case ':':
@@ -257,7 +254,7 @@ Json parse(char *json_str, size_t json_str_len) {
         add_char_to_stack_buffer(&scratch, c);
         continue;
       }
-      printf("Error: unexpected character %c at index %u", c, i);
+      printf("Error: unexpected character %c at index %zu", c, i);
       exit(1);
       break;
     }
@@ -306,7 +303,6 @@ void copy_float_to_string(String *s, float f) {
 void copy_key_to_string(String *s, String *key) {
   // + 2 for the characters `"":`
   if (s->size + key->size + 2 >= s->memsize) {
-    debugger();
     puts("TODO: resize here key to string");
   }
   str_push(s, '"');
@@ -322,41 +318,41 @@ String stringify(Json json) {
       .str = calloc(STRINGIFY_INITIAL_LEN, sizeof(char)),
   };
   StackBuffer state_stack = {0};
-  JsonObject *current_obj = NULL;
-  switch (json.start) {
-  case JsonStartObject: {
-    current_obj = &json.obj;
+  JsonValue *current_val = NULL;
+  switch (json.value.type) {
+  case JSON_value_type_Object: {
+    current_val = &json.value;
     str_push(&s, '{');
     push_stack_buffer('}', &state_stack);
 
-    if (current_obj->pairs[0].key.size == 0) {
+    if (current_val->obj_pairs[0].key.size == 0) {
       str_push(&s, pop_stack_buffr(&state_stack));
       break;
     }
 
-    copy_key_to_string(&s, &(current_obj->pairs[0].key));
+    copy_key_to_string(&s, &(current_val->obj_pairs[0].key));
     str_push(&s, ':');
-    if (JSON_value_type_Int == current_obj->pairs[0].value.type) {
-      copy_int_to_string(&s, current_obj->pairs[0].value.int_val);
+    if (JSON_value_type_Int == current_val->obj_pairs[0].value.type) {
+      copy_int_to_string(&s, current_val->obj_pairs[0].value.int_val);
     }
-    if (JSON_value_type_Float == current_obj->pairs[0].value.type) {
-      copy_float_to_string(&s, current_obj->pairs[0].value.float_val);
+    if (JSON_value_type_Float == current_val->obj_pairs[0].value.type) {
+      copy_float_to_string(&s, current_val->obj_pairs[0].value.float_val);
     }
-    if (JSON_value_type_Object == current_obj->pairs[0].value.type) {
+    if (JSON_value_type_Object == current_val->obj_pairs[0].value.type) {
       str_push(&s, '{');
       push_stack_buffer('}', &state_stack);
     }
 
     break;
   };
-  case JsonStartArray: {
+  case JSON_value_type_Array: {
     str_push(&s, '[');
     push_stack_buffer(']', &state_stack);
-    for (size_t i = 0; i < json.arr.len; i++) {
-      JsonValue val = json.arr.values[i];
+    for (size_t i = 0; i < json.value.len; i++) {
+      JsonValue val = json.value.arr_values[i];
       if (JSON_value_type_Int == val.type) {
         copy_int_to_string(&s, val.int_val);
-        if (json.arr.len > i + 1) {
+        if (json.value.len > i + 1) {
           if (s.size + 1 > s.memsize) {
             puts("TODO: resize here array");
           }
@@ -366,6 +362,12 @@ String stringify(Json json) {
     }
     break;
   }
+  case JSON_value_type_Float:
+  case JSON_value_type_Int:
+  case JSON_value_type_Boolean:
+  case JSON_value_type_String:
+    puts("This is not a valid json type at the start");
+    exit(1);
   }
 
   while (state_stack.len > 0) {
