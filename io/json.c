@@ -68,7 +68,6 @@ typedef enum {
   StartState,
   ReadingObjectKey,
   ReadingObjectKeyString,
-  FinhedReadingObjectKey,
   ReadingObjectValueInt,
   ReadingObjectValueFloat,
   ReadyToReadValue,
@@ -77,6 +76,7 @@ typedef enum {
   ReadingValueKeyString,
   FinishedReadingObject,
   FinishedReadingObjectKey,
+  FinishedReadingObjectValue,
   ReadingArrayElement,
   ReadingArrayElementInt,
   FinishedReadingArray,
@@ -201,7 +201,7 @@ Json parse(char *json_str, size_t json_str_len) {
         state = FinishedReadingObjectKey;
         continue;
       }
-      if (state == ReadingObjectKey) {
+      if (state == ReadingObjectKey || state == FinishedReadingObjectValue) {
         state = ReadingObjectKeyString;
         continue;
       }
@@ -215,7 +215,17 @@ Json parse(char *json_str, size_t json_str_len) {
         long int value = flush_stack_buffer_to_int(&scratch);
         json.value.arr_values[json.value.len].int_val = value;
         json.value.len++;
+        continue;
       }
+      if (ReadingObjectValueInt == state) {
+        long int value = flush_stack_buffer_to_int(&scratch);
+        current_value->obj_pairs[0].value.type = JSON_value_type_Int;
+        current_value->obj_pairs[0].value.int_val = value;
+        state = FinishedReadingObjectValue;
+        continue;
+      }
+      printf("Error: unexpected character %c at index %zu", c, i);
+      exit(1);
       break;
     case ':':
       if (FinishedReadingObjectKey == state) {
