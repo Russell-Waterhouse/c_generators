@@ -138,7 +138,6 @@ Json parse(char *json_str, size_t json_str_len) {
         // {}
         //  ^
         // this object has no key and no value
-        printf("curr val capacity: %lu\n", current_value->capacity);
         current_value->obj_pairs[current_value->len].key.size = 0;
         state = FinishedReadingObject;
         continue;
@@ -345,24 +344,29 @@ String stringify(Json json) {
     str_push(&s, '{');
     push_stack_buffer('}', &state_stack);
 
-    if (current_value->obj_pairs[0].key.size == 0) {
-      str_push(&s, pop_stack_buffr(&state_stack));
-      break;
-    }
+    for (u32 i = 0; i < current_value->len; i++) {
+      if (i > 0) {
+        str_push(&s, ',');
+      }
 
-    copy_key_to_string(&s, &(current_value->obj_pairs[0].key));
-    str_push(&s, ':');
-    if (JSON_value_type_Int == current_value->obj_pairs[0].value.type) {
-      copy_int_to_string(&s, current_value->obj_pairs[0].value.int_val);
-    }
-    if (JSON_value_type_Float == current_value->obj_pairs[0].value.type) {
-      copy_float_to_string(&s, current_value->obj_pairs[0].value.float_val);
-    }
-    if (JSON_value_type_Object == current_value->obj_pairs[0].value.type) {
-      str_push(&s, '{');
-      push_stack_buffer('}', &state_stack);
-    }
+      if (current_value->obj_pairs[0].key.size == 0) {
+        str_push(&s, pop_stack_buffr(&state_stack));
+        continue;
+      }
 
+      copy_key_to_string(&s, &(current_value->obj_pairs[i].key));
+      str_push(&s, ':');
+      if (JSON_value_type_Int == current_value->obj_pairs[i].value.type) {
+        copy_int_to_string(&s, current_value->obj_pairs[i].value.int_val);
+      }
+      if (JSON_value_type_Float == current_value->obj_pairs[i].value.type) {
+        copy_float_to_string(&s, current_value->obj_pairs[i].value.float_val);
+      }
+      if (JSON_value_type_Object == current_value->obj_pairs[i].value.type) {
+        str_push(&s, '{');
+        push_stack_buffer('}', &state_stack);
+      }
+    }
     break;
   };
   case JSON_value_type_Array: {
