@@ -115,12 +115,15 @@ Json parse(char *json_str, size_t json_str_len) {
         // {"foo":{"bar":123}}
         //        ^
         state = ReadingObjectKey;
-        current_value->obj_pairs[0].value.type = JSON_value_type_Object;
-        current_value->obj_pairs[0].value.capacity = JSON_OBJ_INITIAL_LEN;
-        current_value->obj_pairs[0].value.obj_pairs =
+        current_value->obj_pairs[current_value->len].value.type =
+            JSON_value_type_Object;
+        current_value->obj_pairs[current_value->len].value.capacity =
+            JSON_OBJ_INITIAL_LEN;
+        current_value->obj_pairs[current_value->len].value.obj_pairs =
             arena_push(json.arena, sizeof(JsonValue) * json.value.capacity)
                 .val.res;
-        current_value->obj_pairs[0].value.len = 0;
+        current_value->obj_pairs[current_value->len].value.len = 0;
+        current_value->len++;
 
         current_value = &current_value->obj_pairs[0].value;
         continue;
@@ -135,21 +138,26 @@ Json parse(char *json_str, size_t json_str_len) {
         // {}
         //  ^
         // this object has no key and no value
-        current_value->obj_pairs[0].key.size = 0;
+        printf("curr val capacity: %lu\n", current_value->capacity);
+        current_value->obj_pairs[current_value->len].key.size = 0;
         state = FinishedReadingObject;
         continue;
       }
       if (ReadingObjectValueInt == state) {
         long int value = flush_stack_buffer_to_int(&scratch);
-        current_value->obj_pairs[0].value.type = JSON_value_type_Int;
-        current_value->obj_pairs[0].value.int_val = value;
+        current_value->obj_pairs[current_value->len].value.type =
+            JSON_value_type_Int;
+        current_value->obj_pairs[current_value->len].value.int_val = value;
+        current_value->len++;
         state = FinishedReadingObject;
         continue;
       }
       if (ReadingObjectValueFloat == state) {
         float value = flush_stack_buffer_to_float(&scratch);
-        current_value->obj_pairs[0].value.type = JSON_value_type_Float;
-        current_value->obj_pairs[0].value.float_val = value;
+        current_value->obj_pairs[current_value->len].value.type =
+            JSON_value_type_Float;
+        current_value->obj_pairs[current_value->len].value.float_val = value;
+        current_value->len++;
         state = FinishedReadingObject;
         continue;
       }
@@ -191,13 +199,13 @@ Json parse(char *json_str, size_t json_str_len) {
       }
     case '"':
       if (state == ReadingObjectKeyString) {
-        current_value->obj_pairs[0].key.memsize = scratch.len;
-        current_value->obj_pairs[0].key.size = scratch.len;
+        current_value->obj_pairs[current_value->len].key.memsize = scratch.len;
+        current_value->obj_pairs[current_value->len].key.size = scratch.len;
         // const char* expected = "{\"key\":12345}";
         // if (!memcmp(expected, json_str, strlen(expected))) {
         // }
         char *dest = flush_scratch_buffer_string_to_arena(&scratch, json.arena);
-        current_value->obj_pairs[0].key.str = dest;
+        current_value->obj_pairs[current_value->len].key.str = dest;
         state = FinishedReadingObjectKey;
         continue;
       }
@@ -219,8 +227,10 @@ Json parse(char *json_str, size_t json_str_len) {
       }
       if (ReadingObjectValueInt == state) {
         long int value = flush_stack_buffer_to_int(&scratch);
-        current_value->obj_pairs[0].value.type = JSON_value_type_Int;
-        current_value->obj_pairs[0].value.int_val = value;
+        current_value->obj_pairs[current_value->len].value.type =
+            JSON_value_type_Int;
+        current_value->obj_pairs[current_value->len].value.int_val = value;
+        current_value->len++;
         state = FinishedReadingObjectValue;
         continue;
       }
