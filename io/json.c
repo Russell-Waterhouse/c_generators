@@ -338,27 +338,27 @@ String stringify(Json json) {
       .str = calloc(STRINGIFY_INITIAL_LEN, sizeof(char)),
   };
   StackBuffer state_stack = {0};
-  JsonValue *current_val = NULL;
+  JsonValue *current_value = NULL;
   switch (json.value.type) {
   case JSON_value_type_Object: {
-    current_val = &json.value;
+    current_value = &json.value;
     str_push(&s, '{');
     push_stack_buffer('}', &state_stack);
 
-    if (current_val->obj_pairs[0].key.size == 0) {
+    if (current_value->obj_pairs[0].key.size == 0) {
       str_push(&s, pop_stack_buffr(&state_stack));
       break;
     }
 
-    copy_key_to_string(&s, &(current_val->obj_pairs[0].key));
+    copy_key_to_string(&s, &(current_value->obj_pairs[0].key));
     str_push(&s, ':');
-    if (JSON_value_type_Int == current_val->obj_pairs[0].value.type) {
-      copy_int_to_string(&s, current_val->obj_pairs[0].value.int_val);
+    if (JSON_value_type_Int == current_value->obj_pairs[0].value.type) {
+      copy_int_to_string(&s, current_value->obj_pairs[0].value.int_val);
     }
-    if (JSON_value_type_Float == current_val->obj_pairs[0].value.type) {
-      copy_float_to_string(&s, current_val->obj_pairs[0].value.float_val);
+    if (JSON_value_type_Float == current_value->obj_pairs[0].value.type) {
+      copy_float_to_string(&s, current_value->obj_pairs[0].value.float_val);
     }
-    if (JSON_value_type_Object == current_val->obj_pairs[0].value.type) {
+    if (JSON_value_type_Object == current_value->obj_pairs[0].value.type) {
       str_push(&s, '{');
       push_stack_buffer('}', &state_stack);
     }
